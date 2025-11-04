@@ -1,10 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
 
-# This file has been modified to allow re-linking to a new Firebase project.
-# Please reload the page and follow the prompts to create a new project
-# with the correct Google account.
-
 runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
