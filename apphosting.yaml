@@ -1,0 +1,20 @@
+# This file is managed by Firebase Studio. Do not edit.
+# For more information, see https://firebase.google.com/docs/hosting/app-hosting
+#
+# v1
+stack:
+  name: nextjs
+run:
+  # The command to run to start the server
+  command: npm run start
+#
+# v2
+# build:
+#   run: npm run build
+#   # The directory that contains the built assets
+#   output: .next
+# run:
+#   # The command to run to start the server
+#   command: npm run start
+#   # The directory that contains the server
+#   server: .
