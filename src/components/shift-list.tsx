@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 interface ShiftListProps {
   shifts: Shift[];
   userId: string;
+  onActionSuccess: () => void;
 }
 
 function DeleteButton({ shiftId }: { shiftId: string }) {
@@ -38,27 +39,29 @@ function DeleteButton({ shiftId }: { shiftId: string }) {
   );
 }
 
-export default function ShiftList({ shifts, userId }: ShiftListProps) {
+export default function ShiftList({ shifts, userId, onActionSuccess }: ShiftListProps) {
   const { toast } = useToast();
-  const [state, formAction] = useActionState(deleteShiftAction, { message: '' });
+  const [state, formAction] = useActionState(deleteShiftAction, { message: '', error: undefined });
 
   useEffect(() => {
-    if (state?.message) {
+    if (state?.message && !state.error) {
       toast({
         title: 'Guardia actualizada',
         description: state.message,
       });
+      onActionSuccess();
     }
-  }, [state, toast]);
+    if (state?.error) {
+      toast({
+        title: 'Error',
+        description: state.error,
+        variant: 'destructive',
+      });
+    }
+  }, [state, toast, onActionSuccess]);
   
   if (shifts.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground italic">
-          No hay guardias publicadas para este día.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (

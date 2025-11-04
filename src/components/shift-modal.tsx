@@ -35,6 +35,8 @@ export default function ShiftModal({
   });
   const canPublish = shifts.length < 2;
 
+  const hasShifts = shifts.length > 0;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[90svh] flex flex-col">
@@ -42,17 +44,19 @@ export default function ShiftModal({
           <DialogTitle className="text-2xl font-bold text-primary font-headline capitalize">
             {formattedDate}
           </DialogTitle>
-          <DialogDescription>
-            Guardias pendientes de cambio para este día.
-          </DialogDescription>
+          {hasShifts && (
+            <DialogDescription>
+              Guardias pendientes de cambio para este día.
+            </DialogDescription>
+          )}
         </DialogHeader>
         
         <div className="flex-grow overflow-y-auto pr-2 -mr-4 pl-1">
-          <ShiftList shifts={shifts} userId={userId} />
+          <ShiftList shifts={shifts} userId={userId} onActionSuccess={onClose} />
 
           {canPublish && (
             <>
-              <Separator className="my-6" />
+              {hasShifts && <Separator className="my-6" />}
               <ShiftPostForm selectedDate={date} onFormSubmitSuccess={onClose} />
             </>
           )}

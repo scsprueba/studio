@@ -13,6 +13,12 @@ interface CalendarViewProps {
   userId: string;
 }
 
+const abbreviatedLocation = (location: 'C.S. Granadilla' | 'SNU San Isidro') => {
+  if (location === 'C.S. Granadilla') return 'Granadilla';
+  if (location === 'SNU San Isidro') return 'SanIsidro';
+  return location;
+}
+
 export default function CalendarView({ initialShifts, userId }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
@@ -63,13 +69,12 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const shifts = shiftsByDate[dateString] || [];
     const hasShifts = shifts.length > 0;
-    const firstShift = hasShifts ? shifts[0] : null;
-
+    
     calendarDays.push(
       <div
         key={day}
         className={cn(
-          'day-cell rounded-lg p-1.5 text-center cursor-pointer flex flex-col items-center justify-between transition-colors duration-150 relative',
+          'day-cell rounded-lg p-1.5 text-center cursor-pointer flex flex-col justify-start transition-colors duration-150 relative group',
           isWeekend && 'weekend-cell',
           hasShifts && 'has-shifts hover:bg-red-100 dark:hover:bg-red-900/40',
           !hasShifts && 'hover:bg-muted'
@@ -79,27 +84,24 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
         tabIndex={0}
         aria-label={`Ver guardias para el ${day} de ${monthNames[currentMonth]}`}
       >
-        <div className="w-full">
-          <span className={cn('text-xl font-bold', hasShifts ? 'text-red-600 dark:text-red-400' : 'text-foreground/80')}>
-            {day}
-          </span>
+        <span className={cn('text-lg font-bold', hasShifts ? 'text-red-600 dark:text-red-400' : 'text-foreground/80')}>
+          {day}
+        </span>
+        <div className="w-full flex-grow flex flex-col justify-start items-center mt-1 space-y-1 text-[10px] leading-tight">
+          {[0, 1].map(index => {
+            const shift = shifts[index];
+            if (shift) {
+              return (
+                <div key={shift.id} className="w-full bg-red-100/50 dark:bg-red-900/30 p-0.5 rounded-sm overflow-hidden">
+                  <p className="font-bold text-red-700 dark:text-red-300 truncate">{abbreviatedLocation(shift.location)}</p>
+                  <p className="text-foreground/80 font-medium truncate">{shift.time}</p>
+                </div>
+              )
+            }
+            return <div key={`placeholder-${index}`} className="h-[28px] w-full" />
+          })}
         </div>
-        <div className="w-full flex-grow flex flex-col justify-center items-center">
-        {hasShifts && firstShift ? (
-            <div className="w-full text-xs mt-1 space-y-0.5 px-1 text-center">
-              <p className="font-bold text-red-600 dark:text-red-400 truncate">{firstShift.location}</p>
-              <p className="text-xs text-foreground/70 font-medium truncate">{firstShift.time}</p>
-              <p className="text-xs text-muted-foreground italic truncate">{firstShift.name}</p>
-            </div>
-          ) : (
-             <PlusCircle className="h-5 w-5 text-muted-foreground opacity-20 group-hover:opacity-100" />
-          )}
-        </div>
-        {shifts.length > 1 && (
-            <span className="text-[10px] font-bold text-red-800 dark:text-red-200 px-1.5 py-0.5 rounded-full bg-red-200/50 dark:bg-red-500/30 absolute top-1 right-1">
-              +{shifts.length -1}
-            </span>
-        )}
+        {!hasShifts && <PlusCircle className="h-5 w-5 text-muted-foreground opacity-10 group-hover:opacity-60 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
       </div>
     );
   }

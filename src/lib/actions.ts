@@ -51,10 +51,13 @@ export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
   }
 }
 
-export async function deleteShiftAction(prevState: { message: string }, formData: FormData) {
+export async function deleteShiftAction(
+  prevState: { message: string, error?: string }, 
+  formData: FormData
+): Promise<{ message: string, error?: string }> {
   const shiftId = formData.get('shiftId') as string;
   if (!shiftId) {
-    return { message: 'Error: ID de guardia no encontrado.' };
+    return { message: '', error: 'Error: ID de guardia no encontrado.' };
   }
   
   try {
@@ -62,6 +65,6 @@ export async function deleteShiftAction(prevState: { message: string }, formData
     revalidatePath('/');
     return { message: 'La guardia ha sido marcada como cambiada y eliminada.' };
   } catch (e) {
-    return { message: 'Error al eliminar la guardia.' };
+    return { message: '', error: 'Error al eliminar la guardia.' };
   }
 }

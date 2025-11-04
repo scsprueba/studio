@@ -107,7 +107,7 @@ export default function ShiftPostForm({ selectedDate, onFormSubmitSuccess }: Shi
               <FormItem>
                 <FormLabel>Mi Nombre (Visible)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: Dra. Elena" {...field} />
+                  <Input placeholder="" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -164,7 +164,7 @@ export default function ShiftPostForm({ selectedDate, onFormSubmitSuccess }: Shi
               <FormItem>
                 <FormLabel>Teléfono (WhatsApp)</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="Ej: 600123456" {...field} />
+                  <Input type="tel" placeholder="" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -178,7 +178,7 @@ export default function ShiftPostForm({ selectedDate, onFormSubmitSuccess }: Shi
                 <FormLabel>Notas para el Cambio (Opcional)</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Ej: Busco mañana o sólo cambio por guardia de tarde..."
+                    placeholder=""
                     {...field}
                   />
                 </FormControl>

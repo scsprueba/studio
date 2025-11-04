@@ -9,7 +9,7 @@ export default async function Home() {
     <div className="p-4 md:p-6 pb-20 bg-background min-h-screen">
       <header className="text-center mb-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-primary font-headline">
-          Guardias Pendientes
+          Guardias a Cambiar
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
           Toca un día para ver o publicar una guardia.
