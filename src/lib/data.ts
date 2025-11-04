@@ -12,9 +12,11 @@ import {
   where,
   limit,
 } from 'firebase/firestore';
-import { db } from '@/firebase'; // Use client-side db instance
+import { getFirestore } from '@/firebase/server';
 import type { Shift, NewShiftData } from './definitions';
 
+// Use on-demand server-side firestore instance
+const db = getFirestore();
 const shiftsCollection = collection(db, 'shifts');
 
 export async function getShifts(): Promise<Shift[]> {
