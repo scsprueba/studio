@@ -14,7 +14,6 @@ import { deleteShiftAction } from '@/lib/actions';
 import {
   Phone,
   CheckCircle,
-  User,
   Clock,
   MapPin,
   FileText,
@@ -60,17 +59,13 @@ export default function ShiftList({
 }: ShiftListProps) {
   const { toast } = useToast();
 
-  const [state, formAction] = useActionState(deleteShiftAction, {
+  const [state, formAction, isPending] = useActionState(deleteShiftAction, {
     message: '',
     error: undefined,
   });
 
   useEffect(() => {
     if (state?.message && !state.error) {
-      toast({
-        title: 'Guardia actualizada',
-        description: state.message,
-      });
       onActionSuccess();
     }
     if (state?.error) {

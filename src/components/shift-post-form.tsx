@@ -26,8 +26,6 @@ import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { startTransition } from 'react';
 
-const MOCK_USER_ID = 'user_abc_123';
-
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
   location: z.enum(['C.S. Granadilla', 'SNU San Isidro'], {
@@ -46,6 +44,7 @@ type ShiftFormValues = z.infer<typeof formSchema>;
 
 interface ShiftPostFormProps {
   selectedDate: string;
+  userId: string;
   onFormSubmitSuccess: () => void;
 }
 
@@ -58,7 +57,7 @@ function SubmitButton() {
   );
 }
 
-export default function ShiftPostForm({ selectedDate, onFormSubmitSuccess }: ShiftPostFormProps) {
+export default function ShiftPostForm({ selectedDate, userId, onFormSubmitSuccess }: ShiftPostFormProps) {
   const { toast } = useToast();
   const form = useForm<ShiftFormValues>({
     resolver: zodResolver(formSchema),
@@ -69,7 +68,7 @@ export default function ShiftPostForm({ selectedDate, onFormSubmitSuccess }: Shi
       phone: '',
       notes: '',
       date: selectedDate,
-      userId: MOCK_USER_ID,
+      userId: userId,
     },
   });
 
@@ -100,6 +99,8 @@ export default function ShiftPostForm({ selectedDate, onFormSubmitSuccess }: Shi
       </h4>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <input type="hidden" {...form.register('userId')} />
+          <input type="hidden" {...form.register('date')} />
           <FormField
             control={form.control}
             name="name"

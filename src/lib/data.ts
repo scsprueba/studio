@@ -12,11 +12,9 @@ import {
   where,
   limit,
 } from 'firebase/firestore';
-import { getFirestore } from '@/firebase/server';
+import { db } from '@/firebase'; // Use client-side db instance
 import type { Shift, NewShiftData } from './definitions';
-import { revalidatePath } from 'next/cache';
 
-const db = getFirestore();
 const shiftsCollection = collection(db, 'shifts');
 
 export async function getShifts(): Promise<Shift[]> {
@@ -57,8 +55,20 @@ export async function getShiftsForDate(date: string) {
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
 }
 
-export async function canPublishShift(date: string): Promise<boolean> {
-  const q = query(shiftsCollection, where('date', '==', date), limit(2));
-  const snapshot = await getDocs(q);
-  return snapshot.size < 2;
+export async function canPublishShift(date: string, userId: string): Promise<boolean> {
+  // Check total shifts for the day
+  const dayQuery = query(shiftsCollection, where('date', '==', date), limit(2));
+  const daySnapshot = await getDocs(dayQuery);
+  if (daySnapshot.size >= 2) {
+    return false;
+  }
+
+  // Check if user has already posted for that day
+  const userQuery = query(shiftsCollection, where('date', '==', date), where('userId', '==', userId), limit(1));
+  const userSnapshot = await getDocs(userQuery);
+  if (!userSnapshot.empty) {
+    return false;
+  }
+
+  return true;
 }

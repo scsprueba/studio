@@ -29,12 +29,12 @@ export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
     };
   }
   
-  const { date } = validatedFields.data;
+  const { date, userId } = validatedFields.data;
 
-  const canPublish = await canPublishShift(date);
+  const canPublish = await canPublishShift(date, userId);
   if (!canPublish) {
     return {
-      error: 'Ya hay 2 guardias publicadas para este día. No se puede publicar más.',
+      error: 'Ya has publicado una guardia para este día o el cupo está lleno.',
     };
   }
   

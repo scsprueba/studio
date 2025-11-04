@@ -30,3 +30,4 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
 }
 
 export { FirebaseProvider } from './provider';
+export { useUser } from './auth/use-user';

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Shift } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import ShiftModal from './shift-modal';
 import { cn } from '@/lib/utils';
+import { onSnapshot, collection, query, orderBy } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 interface CalendarViewProps {
   initialShifts: Shift[];
@@ -23,13 +25,28 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
   const [currentDate, setCurrentDate] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [shifts, setShifts] = useState(initialShifts);
+
+  useEffect(() => {
+    const q = query(collection(db, 'shifts'), orderBy('createdAt', 'asc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const shiftsFromDb = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt.toDate(),
+      })) as Shift[];
+      setShifts(shiftsFromDb);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const shiftsByDate = useMemo(() => {
-    return initialShifts.reduce((acc, shift) => {
+    return shifts.reduce((acc, shift) => {
       (acc[shift.date] = acc[shift.date] || []).push(shift);
       return acc;
     }, {} as Record<string, Shift[]>);
-  }, [initialShifts]);
+  }, [shifts]);
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -57,6 +74,10 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
     setModalOpen(true);
   };
   
+  const handleModalClose = () => {
+    setModalOpen(false);
+  }
+
   const calendarDays = [];
   for (let i = 0; i < startDayIndex; i++) {
     calendarDays.push(<div key={`empty-${i}`} className="p-1"></div>);
@@ -67,8 +88,8 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
     const dateString = date.toISOString().split('T')[0];
     const dayOfWeek = date.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const shifts = shiftsByDate[dateString] || [];
-    const hasShifts = shifts.length > 0;
+    const dayShifts = shiftsByDate[dateString] || [];
+    const hasShifts = dayShifts.length > 0;
     
     calendarDays.push(
       <div
@@ -89,7 +110,7 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
         </span>
         <div className="w-full flex-grow flex flex-col justify-start items-center mt-1 space-y-1 text-[10px] leading-tight">
           {[0, 1].map(index => {
-            const shift = shifts[index];
+            const shift = dayShifts[index];
             if (shift) {
               return (
                 <div key={shift.id} className="w-full bg-red-100/50 dark:bg-red-900/30 p-0.5 rounded-sm overflow-hidden">
@@ -135,11 +156,7 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
       {selectedDate && (
         <ShiftModal
           isOpen={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            // We can't easily revalidate from the client, 
-            // but closing the modal and reopening will show fresh data.
-          }}
+          onClose={handleModalClose}
           date={selectedDate}
           shifts={shiftsByDate[selectedDate] || []}
           userId={userId}

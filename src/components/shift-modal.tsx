@@ -33,7 +33,10 @@ export default function ShiftModal({
     month: 'long',
     day: 'numeric',
   });
-  const canPublish = shifts.length < 2;
+  
+  // A user can only post one shift per day.
+  const userHasPosted = shifts.some(s => s.userId === userId);
+  const canPublish = shifts.length < 2 && !userHasPosted;
 
   const hasShifts = shifts.length > 0;
 
@@ -46,7 +49,7 @@ export default function ShiftModal({
           </DialogTitle>
           {hasShifts && (
             <DialogDescription>
-              Guardias pendientes de cambio para este día.
+              Guardias disponibles para cambio en este día.
             </DialogDescription>
           )}
         </DialogHeader>
@@ -57,14 +60,22 @@ export default function ShiftModal({
           {canPublish && (
             <>
               {hasShifts && <Separator className="my-6" />}
-              <ShiftPostForm selectedDate={date} onFormSubmitSuccess={onClose} />
+              <ShiftPostForm selectedDate={date} userId={userId} onFormSubmitSuccess={onClose} />
             </>
           )}
 
-          {!canPublish && shifts.length > 0 && (
+          {!canPublish && userHasPosted && (
+             <div className="text-center p-4 mt-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                Ya has publicado una guardia para este día.
+                </p>
+            </div>
+          )}
+
+          {!canPublish && !userHasPosted && shifts.length >= 2 && (
              <div className="text-center p-4 mt-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
                 <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
-                Ya hay 2 guardias publicadas para este día. No se pueden añadir más.
+                Ya hay 2 guardias publicadas. No se pueden añadir más.
                 </p>
             </div>
           )}
