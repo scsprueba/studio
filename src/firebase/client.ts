@@ -10,6 +10,11 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const getFirebaseConfig = (): FirebaseOptions => {
+  // This is the config provided by App Hosting during deployment.
+  if (process.env.FIREBASE_CONFIG) {
+    return JSON.parse(process.env.FIREBASE_CONFIG);
+  }
+
   // This is the config provided for local development and client-side rendering.
   const webAppConfig = process.env.NEXT_PUBLIC_FIREBASE_CONFIG;
   if (webAppConfig) {
