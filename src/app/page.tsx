@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import CalendarView from '@/components/calendar-view';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/firebase/client';
 import { useShifts } from '@/firebase/provider';
+import { getFirebase } from '@/firebase/client';
 
 export default function Home() {
   const { user, loading } = useUser();
@@ -26,6 +26,8 @@ export default function Home() {
       </div>
     );
   }
+
+  const { auth } = getFirebase();
 
   return (
     <div className="p-4 md:p-6 pb-20 bg-background min-h-screen">

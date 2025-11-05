@@ -1,7 +1,7 @@
 'use client';
 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '@/firebase/client';
+import { getFirebase } from '@/firebase/client';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
@@ -12,6 +12,7 @@ function LoginButton() {
   const router = useRouter();
 
   const handleSignIn = async () => {
+    const { auth } = getFirebase();
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);

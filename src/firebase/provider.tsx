@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { onSnapshot, collection, query, orderBy } from 'firebase/firestore';
 import type { Shift } from '@/lib/definitions';
-import { db } from '@/firebase/client';
+import { getFirebase } from '@/firebase/client';
 
 interface FirebaseContextValue {
   shifts: Shift[];
@@ -20,6 +20,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const { db } = getFirebase();
     const q = query(collection(db, 'shifts'), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const shiftsFromDb = querySnapshot.docs.map(doc => ({
