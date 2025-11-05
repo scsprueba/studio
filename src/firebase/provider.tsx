@@ -59,10 +59,8 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [db, setDb] = useState<Firestore | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     setAuth(getAuth(firebaseApp));
     setDb(getFirestore(firebaseApp));
   }, []);
@@ -100,8 +98,8 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     return null;
   }, [db, auth, shifts, loading]);
 
-  if (!isMounted || !value) {
-    // Muestra un estado de carga mientras el componente se monta o Firebase se inicializa
+  if (!value) {
+    // Muestra un estado de carga mientras Firebase se inicializa
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <p>Inicializando Firebase...</p>

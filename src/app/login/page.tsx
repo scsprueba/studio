@@ -4,7 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Chrome } from 'lucide-react';
 import { useFirebase } from '@/firebase/provider';
 
@@ -37,6 +37,11 @@ function LoginButton() {
 export default function LoginPage() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -44,24 +49,25 @@ export default function LoginPage() {
     }
   }, [user, loading, router]);
 
-  if (loading || user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">GuardiaSwap</h1>
-        </div>
-        <div>Cargando...</div>
-      </div>
-    );
-  }
+  const showLoading = loading || user;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-primary mb-2">GuardiaSwap</h1>
-        <p className="text-muted-foreground">Inicia sesión para continuar</p>
+        {!showLoading && isClient && (
+          <p className="text-muted-foreground">Inicia sesión para continuar</p>
+        )}
       </div>
-      <LoginButton />
+      {isClient && (
+        <>
+          {showLoading ? (
+            <div>Cargando...</div>
+          ) : (
+            <LoginButton />
+          )}
+        </>
+      )}
     </div>
   );
 }
