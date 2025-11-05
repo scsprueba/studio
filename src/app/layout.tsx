@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.React.Node;
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="es" className={inter.variable}>
@@ -35,9 +35,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <ClientProvider>
-          {children}
-        </ClientProvider>
+        <ClientProvider>{children}</ClientProvider>
         <Toaster />
       </body>
     </html>

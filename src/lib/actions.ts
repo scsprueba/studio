@@ -12,7 +12,9 @@ const FormSchema = z.object({
   time: z.enum(['20h a 8h', '8h a 20h', '9h a 17h', '17h a 9h'], {
     required_error: 'Debes seleccionar un horario.',
   }),
-  phone: z.string().regex(/^[6-9]\d{8}$/, { message: 'Número de teléfono español no válido.' }),
+  phone: z
+    .string()
+    .regex(/^[6-9]\d{8}$/, { message: 'Número de teléfono español no válido.' }),
   notes: z.string().max(200).optional(),
   date: z.string(),
   userId: z.string(),
@@ -28,7 +30,7 @@ export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
       error: 'Error de validación. Por favor, revisa los campos.',
     };
   }
-  
+
   const { date, userId } = validatedFields.data;
 
   const canPublish = await canPublishShift(date, userId);
@@ -37,7 +39,7 @@ export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
       error: 'Ya has publicado una guardia para este día o el cupo está lleno.',
     };
   }
-  
+
   try {
     await addShift(validatedFields.data);
     revalidatePath('/');
@@ -48,14 +50,14 @@ export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
 }
 
 export async function deleteShiftAction(
-  prevState: { message: string, error?: string }, 
+  prevState: { message: string; error?: string },
   formData: FormData
-): Promise<{ message: string, error?: string }> {
+): Promise<{ message: string; error?: string }> {
   const shiftId = formData.get('shiftId') as string;
   if (!shiftId) {
     return { message: '', error: 'Error: ID de guardia no encontrado.' };
   }
-  
+
   try {
     await deleteShift(shiftId);
     revalidatePath('/');

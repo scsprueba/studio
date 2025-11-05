@@ -54,10 +54,15 @@ export async function deleteShift(shiftId: string) {
 export async function getShiftsForDate(date: string) {
   const q = query(shiftsCollection, where('date', '==', date));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
+  return querySnapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as Shift)
+  );
 }
 
-export async function canPublishShift(date: string, userId: string): Promise<boolean> {
+export async function canPublishShift(
+  date: string,
+  userId: string
+): Promise<boolean> {
   // Check total shifts for the day
   const dayQuery = query(shiftsCollection, where('date', '==', date), limit(2));
   const daySnapshot = await getDocs(dayQuery);
@@ -66,7 +71,12 @@ export async function canPublishShift(date: string, userId: string): Promise<boo
   }
 
   // Check if user has already posted for that day
-  const userQuery = query(shiftsCollection, where('date', '==', date), where('userId', '==', userId), limit(1));
+  const userQuery = query(
+    shiftsCollection,
+    where('date', '==', date),
+    where('userId', '==', userId),
+    limit(1)
+  );
   const userSnapshot = await getDocs(userQuery);
   if (!userSnapshot.empty) {
     return false;

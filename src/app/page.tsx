@@ -7,7 +7,6 @@ import CalendarView from '@/components/calendar-view';
 import { Button } from '@/components/ui/button';
 import { useShifts, useFirebase } from '@/firebase/provider';
 
-
 export default function Home() {
   const { user, loading } = useUser();
   const { shifts, loading: shiftsLoading } = useShifts();
@@ -19,7 +18,7 @@ export default function Home() {
       router.push('/login');
     }
   }, [user, loading, router]);
-  
+
   if (loading || shiftsLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -38,7 +37,9 @@ export default function Home() {
           Toca un día para ver o publicar una guardia.
         </p>
         <div className="absolute top-0 right-0">
-          <Button variant="outline" onClick={() => auth?.signOut()}>Cerrar Sesión</Button>
+          <Button variant="outline" onClick={() => auth?.signOut()}>
+            Cerrar Sesión
+          </Button>
         </div>
       </header>
       <main className="max-w-4xl mx-auto">

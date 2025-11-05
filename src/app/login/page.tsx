@@ -14,7 +14,7 @@ function LoginButton() {
 
   const handleSignIn = async () => {
     if (!auth) {
-      console.error("Auth service is not available.");
+      console.error('Auth service is not available.');
       return;
     }
     const provider = new GoogleAuthProvider();
@@ -34,7 +34,6 @@ function LoginButton() {
   );
 }
 
-
 export default function LoginPage() {
   const { user, loading } = useUser();
   const router = useRouter();
@@ -48,9 +47,9 @@ export default function LoginPage() {
   if (loading || user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-          <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-primary mb-2">GuardiaSwap</h1>
-          </div>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary mb-2">GuardiaSwap</h1>
+        </div>
         <div>Cargando...</div>
       </div>
     );
@@ -58,10 +57,10 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-        <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-primary mb-2">GuardiaSwap</h1>
-            <p className="text-muted-foreground">Inicia sesión para continuar</p>
-        </div>
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-primary mb-2">GuardiaSwap</h1>
+        <p className="text-muted-foreground">Inicia sesión para continuar</p>
+      </div>
       <LoginButton />
     </div>
   );

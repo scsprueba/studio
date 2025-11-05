@@ -27,15 +27,18 @@ export default function ShiftModal({
   shifts,
   userId,
 }: ShiftModalProps) {
-  const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('es-ES', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-  
+  const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString(
+    'es-ES',
+    {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }
+  );
+
   // A user can only post one shift per day.
-  const userHasPosted = shifts.some(s => s.userId === userId);
+  const userHasPosted = shifts.some((s) => s.userId === userId);
   const canPublish = shifts.length < 2 && !userHasPosted;
 
   const hasShifts = shifts.length > 0;
@@ -53,30 +56,38 @@ export default function ShiftModal({
             </DialogDescription>
           )}
         </DialogHeader>
-        
+
         <div className="flex-grow overflow-y-auto pr-2 -mr-4 pl-1">
-          <ShiftList shifts={shifts} userId={userId} onActionSuccess={onClose} />
+          <ShiftList
+            shifts={shifts}
+            userId={userId}
+            onActionSuccess={onClose}
+          />
 
           {canPublish && (
             <>
               {hasShifts && <Separator className="my-6" />}
-              <ShiftPostForm selectedDate={date} userId={userId} onFormSubmitSuccess={onClose} />
+              <ShiftPostForm
+                selectedDate={date}
+                userId={userId}
+                onFormSubmitSuccess={onClose}
+              />
             </>
           )}
 
           {!canPublish && userHasPosted && (
-             <div className="text-center p-4 mt-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+            <div className="text-center p-4 mt-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
                 Ya has publicado una guardia para este día.
-                </p>
+              </p>
             </div>
           )}
 
           {!canPublish && !userHasPosted && shifts.length >= 2 && (
-             <div className="text-center p-4 mt-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-                <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
+            <div className="text-center p-4 mt-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
+              <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
                 Ya hay 2 guardias publicadas. No se pueden añadir más.
-                </p>
+              </p>
             </div>
           )}
         </div>

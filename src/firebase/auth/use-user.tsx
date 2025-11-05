@@ -11,7 +11,9 @@ export function useUser() {
 
   useEffect(() => {
     if (!auth) {
-      setLoading(false);
+      // If auth is not ready, we are still loading.
+      // We will get an update once auth is initialized.
+      setLoading(true);
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {

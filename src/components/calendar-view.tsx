@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import type { Shift } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,9 +18,12 @@ const abbreviatedLocation = (location: 'C.S. Granadilla' | 'SNU San Isidro') => 
   if (location === 'C.S. Granadilla') return 'Granadilla';
   if (location === 'SNU San Isidro') return 'SanIsidro';
   return location;
-}
+};
 
-export default function CalendarView({ initialShifts, userId }: CalendarViewProps) {
+export default function CalendarView({
+  initialShifts,
+  userId,
+}: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -35,8 +38,18 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
   }, [shifts, initialShifts]);
 
   const monthNames = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
   ];
   const dayNames = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
@@ -59,10 +72,10 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
     setSelectedDate(date);
     setModalOpen(true);
   };
-  
+
   const handleModalClose = () => {
     setModalOpen(false);
-  }
+  };
 
   const calendarDays = [];
   for (let i = 0; i < startDayIndex; i++) {
@@ -76,7 +89,7 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const dayShifts = shiftsByDate[dateString] || [];
     const hasShifts = dayShifts.length > 0;
-    
+
     calendarDays.push(
       <div
         key={day}
@@ -91,25 +104,41 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
         tabIndex={0}
         aria-label={`Ver guardias para el ${day} de ${monthNames[currentMonth]}`}
       >
-        <span className={cn('text-lg font-bold', hasShifts ? 'text-red-600 dark:text-red-400' : 'text-foreground/80')}>
+        <span
+          className={cn(
+            'text-lg font-bold',
+            hasShifts ? 'text-red-600 dark:text-red-400' : 'text-foreground/80'
+          )}
+        >
           {day}
         </span>
         <div className="w-full flex-grow flex flex-col justify-start items-center mt-1 space-y-1 text-[10px] leading-tight">
-          {[0, 1].map(index => {
+          {[0, 1].map((index) => {
             const shift = dayShifts[index];
             if (shift) {
               return (
-                <div key={shift.id} className="w-full bg-red-100/50 dark:bg-red-900/30 p-0.5 rounded-sm overflow-hidden">
-                  <p className="font-semibold text-red-800 dark:text-red-200 truncate">{shift.name}</p>
-                  <p className="font-bold text-red-700 dark:text-red-300 truncate">{abbreviatedLocation(shift.location)}</p>
-                  <p className="text-foreground/80 font-medium truncate">{shift.time}</p>
+                <div
+                  key={shift.id}
+                  className="w-full bg-red-100/50 dark:bg-red-900/30 p-0.5 rounded-sm overflow-hidden"
+                >
+                  <p className="font-semibold text-red-800 dark:text-red-200 truncate">
+                    {shift.name}
+                  </p>
+                  <p className="font-bold text-red-700 dark:text-red-300 truncate">
+                    {abbreviatedLocation(shift.location)}
+                  </p>
+                  <p className="text-foreground/80 font-medium truncate">
+                    {shift.time}
+                  </p>
                 </div>
-              )
+              );
             }
-            return <div key={`placeholder-${index}`} className="h-[40px] w-full" />
+            return <div key={`placeholder-${index}`} className="h-[40px] w-full" />;
           })}
         </div>
-        {!hasShifts && <PlusCircle className="h-5 w-5 text-muted-foreground opacity-10 group-hover:opacity-60 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+        {!hasShifts && (
+          <PlusCircle className="h-5 w-5 text-muted-foreground opacity-10 group-hover:opacity-60 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        )}
       </div>
     );
   }
@@ -118,19 +147,36 @@ export default function CalendarView({ initialShifts, userId }: CalendarViewProp
     <>
       <Card className="shadow-lg">
         <div className="flex justify-between items-center p-3">
-          <Button id="prev-month" variant="ghost" size="icon" onClick={handlePrevMonth} aria-label="Mes anterior">
+          <Button
+            id="prev-month"
+            variant="ghost"
+            size="icon"
+            onClick={handlePrevMonth}
+            aria-label="Mes anterior"
+          >
             <ChevronLeft className="w-6 h-6 text-primary" />
           </Button>
-          <h2 id="month-year" className="text-xl font-bold text-foreground font-headline">
+          <h2
+            id="month-year"
+            className="text-xl font-bold text-foreground font-headline"
+          >
             {monthNames[currentMonth]} {currentYear}
           </h2>
-          <Button id="next-month" variant="ghost" size="icon" onClick={handleNextMonth} aria-label="Mes siguiente">
+          <Button
+            id="next-month"
+            variant="ghost"
+            size="icon"
+            onClick={handleNextMonth}
+            aria-label="Mes siguiente"
+          >
             <ChevronRight className="w-6 h-6 text-primary" />
           </Button>
         </div>
         <div className="grid grid-cols-7 text-center font-semibold text-sm text-muted-foreground mb-2 px-2">
           {dayNames.map((name, i) => (
-            <span key={name} className={cn(i > 4 && "text-red-500")}>{name}</span>
+            <span key={name} className={cn(i > 4 && 'text-red-500')}>
+              {name}
+            </span>
           ))}
         </div>
         <CardContent className="p-2">

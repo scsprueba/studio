@@ -34,8 +34,13 @@ const formSchema = z.object({
   time: z.enum(['20h a 8h', '8h a 20h', '9h a 17h', '17h a 9h'], {
     required_error: 'Debes seleccionar un horario.',
   }),
-  phone: z.string().regex(/^[6-9]\d{8}$/, { message: 'Número de teléfono español no válido.' }),
-  notes: z.string().max(200, { message: 'Las notas no pueden exceder los 200 caracteres.' }).optional(),
+  phone: z
+    .string()
+    .regex(/^[6-9]\d{8}$/, { message: 'Número de teléfono español no válido.' }),
+  notes: z
+    .string()
+    .max(200, { message: 'Las notas no pueden exceder los 200 caracteres.' })
+    .optional(),
   date: z.string(),
   userId: z.string(),
 });
@@ -57,7 +62,11 @@ function SubmitButton() {
   );
 }
 
-export default function ShiftPostForm({ selectedDate, userId, onFormSubmitSuccess }: ShiftPostFormProps) {
+export default function ShiftPostForm({
+  selectedDate,
+  userId,
+  onFormSubmitSuccess,
+}: ShiftPostFormProps) {
   const { toast } = useToast();
   const form = useForm<ShiftFormValues>({
     resolver: zodResolver(formSchema),
@@ -120,14 +129,19 @@ export default function ShiftPostForm({ selectedDate, userId, onFormSubmitSucces
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Lugar de la Guardia</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona el lugar" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="C.S. Granadilla">C.S. Granadilla</SelectItem>
+                    <SelectItem value="C.S. Granadilla">
+                      C.S. Granadilla
+                    </SelectItem>
                     <SelectItem value="SNU San Isidro">SNU San Isidro</SelectItem>
                   </SelectContent>
                 </Select>
@@ -141,7 +155,10 @@ export default function ShiftPostForm({ selectedDate, userId, onFormSubmitSucces
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Horario</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona el horario" />
@@ -178,10 +195,7 @@ export default function ShiftPostForm({ selectedDate, userId, onFormSubmitSucces
               <FormItem>
                 <FormLabel>Notas para el Cambio (Opcional)</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder=""
-                    {...field}
-                  />
+                  <Textarea placeholder="" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

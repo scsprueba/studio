@@ -59,7 +59,7 @@ export default function ShiftList({
 }: ShiftListProps) {
   const { toast } = useToast();
 
-  const [state, formAction, isPending] = useActionState(deleteShiftAction, {
+  const [state, formAction] = useActionState(deleteShiftAction, {
     message: '',
     error: undefined,
   });
@@ -105,7 +105,10 @@ export default function ShiftList({
                   </span>
                 </CardTitle>
                 {isOwner && (
-                  <Badge variant="default" className="flex items-center gap-1.5">
+                  <Badge
+                    variant="default"
+                    className="flex items-center gap-1.5"
+                  >
                     <Star className="w-3.5 h-3.5" />
                     Mi Guardia
                   </Badge>
