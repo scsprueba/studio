@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import CalendarView from '@/components/calendar-view';
 import { Button } from '@/components/ui/button';
-import { auth, useShifts } from '@/firebase';
+import { auth } from '@/firebase/client';
+import { useShifts } from '@/firebase/hooks/use-shifts';
 
 export default function Home() {
   const { user, loading } = useUser();

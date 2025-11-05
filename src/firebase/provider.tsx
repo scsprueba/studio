@@ -49,8 +49,3 @@ export const useFirebase = () => {
     }
     return context;
 };
-
-// Custom hook to be used by components that need shift data
-export const useShifts = () => {
-    return useFirebase();
-}
