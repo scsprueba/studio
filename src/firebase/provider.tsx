@@ -26,8 +26,8 @@ import {
   FirebaseOptions,
 } from 'firebase/app';
 
-// This is a hardcoded config object.
-// In a real-world scenario, this should be loaded from environment variables.
+// Esta configuración es pública y segura.
+// Al estar directamente en el código, eliminamos todos los errores de variables de entorno.
 const firebaseConfig: FirebaseOptions = {
   apiKey: 'AIzaSyCCozUn2lAcvVM6VUmSFlnkLnLdP1jJVnU',
   authDomain: 'studio-6792195927-50f25.firebaseapp.com',
@@ -38,20 +38,14 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 interface FirebaseContextValue {
-  db: Firestore | null;
-  auth: Auth | null;
-  app: FirebaseApp | null;
+  db: Firestore;
+  auth: Auth;
+  app: FirebaseApp;
   shifts: Shift[];
   loading: boolean;
 }
 
-const FirebaseContext = createContext<FirebaseContextValue>({
-  db: null,
-  auth: null,
-  app: null,
-  shifts: [],
-  loading: true,
-});
+const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
 function initializeFirebase() {
   if (getApps().length === 0) {
@@ -70,22 +64,16 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const firebaseApp = initializeFirebase();
-    if (firebaseApp) {
-      setApp(firebaseApp);
-      setAuth(getAuth(firebaseApp));
-      setDb(getFirestore(firebaseApp));
-    } else {
-      setLoading(false);
-    }
+    setApp(firebaseApp);
+    setAuth(getAuth(firebaseApp));
+    setDb(getFirestore(firebaseApp));
   }, []);
 
   useEffect(() => {
     if (!db) {
-      if (app) setLoading(false);
       return;
     }
 
-    setLoading(true);
     const q = query(collection(db, 'shifts'), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(
       q,
@@ -105,12 +93,23 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, [db, app]);
+  }, [db]);
 
-  const value = useMemo(
-    () => ({ app, db, auth, shifts, loading }),
-    [app, db, auth, shifts, loading]
-  );
+  const value = useMemo(() => {
+    if (app && db && auth) {
+      return { app, db, auth, shifts, loading };
+    }
+    return null;
+  }, [app, db, auth, shifts, loading]);
+
+  if (!value) {
+    // Muestra un estado de carga mientras Firebase se inicializa
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <p>Inicializando Firebase...</p>
+      </div>
+    );
+  }
 
   return (
     <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>
@@ -119,7 +118,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
 export const useFirebase = () => {
   const context = useContext(FirebaseContext);
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useFirebase must be used within a FirebaseProvider');
   }
   return context;
@@ -127,7 +126,7 @@ export const useFirebase = () => {
 
 export const useShifts = () => {
   const context = useContext(FirebaseContext);
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useShifts must be used within a FirebaseProvider');
   }
   return { shifts: context.shifts, loading: context.loading };
