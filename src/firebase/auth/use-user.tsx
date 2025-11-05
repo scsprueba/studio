@@ -10,9 +10,7 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) {
-      // If auth is not ready, we are still loading.
-      // We will get an update once auth is initialized.
+    if (!auth || Object.keys(auth).length === 0) {
       setLoading(true);
       return;
     }

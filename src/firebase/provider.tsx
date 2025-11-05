@@ -16,6 +16,8 @@ import {
   Firestore,
   getFirestore,
 } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
+import type { Shift } from '@/lib/definitions';
 import {
   initializeApp,
   getApps,
@@ -23,8 +25,6 @@ import {
   FirebaseApp,
   FirebaseOptions,
 } from 'firebase/app';
-import { Auth, getAuth } from 'firebase/auth';
-import type { Shift } from '@/lib/definitions';
 
 interface FirebaseContextValue {
   db: Firestore | null;
@@ -42,39 +42,52 @@ const FirebaseContext = createContext<FirebaseContextValue>({
   loading: true,
 });
 
-export function FirebaseProvider({ children }: { children: ReactNode }) {
-  const [shifts, setShifts] = useState<Shift[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const firebaseApp = useMemo(() => {
-    // This string is populated by App Hosting.
-    const firebaseConfigString = process.env.NEXT_PUBLIC_FIREBASE_CONFIG;
-    if (!firebaseConfigString) {
-      // Do not log error, as this can happen during build process
-      return null;
-    }
+function initializeFirebase() {
+  const firebaseConfigString = process.env.NEXT_PUBLIC_FIREBASE_CONFIG;
+  if (!firebaseConfigString) {
+    console.error(
+      'Firebase config not found. Please check your environment variables.'
+    );
+    return null;
+  }
+  try {
     const firebaseConfig: FirebaseOptions = JSON.parse(firebaseConfigString);
     if (getApps().length === 0) {
       return initializeApp(firebaseConfig);
+    } else {
+      return getApp();
     }
-    return getApp();
-  }, []);
+  } catch (e) {
+    console.error('Could not parse Firebase config:', e);
+    return null;
+  }
+}
 
-  const db = useMemo(
-    () => (firebaseApp ? getFirestore(firebaseApp) : null),
-    [firebaseApp]
-  );
-  const auth = useMemo(
-    () => (firebaseApp ? getAuth(firebaseApp) : null),
-    [firebaseApp]
-  );
+export function FirebaseProvider({ children }: { children: ReactNode }) {
+  const [app, setApp] = useState<FirebaseApp | null>(null);
+  const [auth, setAuth] = useState<Auth | null>(null);
+  const [db, setDb] = useState<Firestore | null>(null);
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const firebaseApp = initializeFirebase();
+    if (firebaseApp) {
+      setApp(firebaseApp);
+      setAuth(getAuth(firebaseApp));
+      setDb(getFirestore(firebaseApp));
+    } else {
+      setLoading(false); // Stop loading if Firebase fails to initialize
+    }
+  }, []);
 
   useEffect(() => {
     if (!db) {
-      setLoading(false);
+      if (app) setLoading(false); // If app tried to init but db failed.
       return;
     }
 
+    setLoading(true);
     const q = query(collection(db, 'shifts'), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(
       q,
@@ -94,14 +107,15 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, [db]);
+  }, [db, app]);
 
-  const value = { app: firebaseApp, db, auth, shifts, loading };
+  const value = useMemo(
+    () => ({ app, db, auth, shifts, loading }),
+    [app, db, auth, shifts, loading]
+  );
 
   return (
-    <FirebaseContext.Provider value={value}>
-      {children}
-    </FirebaseContext.Provider>
+    <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>
   );
 }
 
