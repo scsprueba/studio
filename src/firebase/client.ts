@@ -10,21 +10,22 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const getFirebaseConfig = (): FirebaseOptions => {
-  // This is the config provided by App Hosting during deployment.
+  // For server-side rendering in production, the config is stringified and passed as an environment variable.
+  // This is the variable set by Firebase App Hosting.
   if (process.env.FIREBASE_CONFIG) {
     return JSON.parse(process.env.FIREBASE_CONFIG);
   }
 
-  // This is the config provided for local development and client-side rendering.
-  const webAppConfig = process.env.NEXT_PUBLIC_FIREBASE_CONFIG;
-  if (webAppConfig) {
+  // For client-side rendering and local development, the config is available on NEXT_PUBLIC_FIREBASE_CONFIG.
+  // This is set by Firebase Studio.
+  if (process.env.NEXT_PUBLIC_FIREBASE_CONFIG) {
     try {
-      return JSON.parse(webAppConfig);
+      return JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG);
     } catch (e) {
-      console.error("Error parsing NEXT_PUBLIC_FIREBASE_CONFIG", e);
+      console.error('Error parsing NEXT_PUBLIC_FIREBASE_CONFIG', e);
     }
   }
-
+  
   // Fallback for other environments, trying to build from individual variables.
   const fallbackConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -39,9 +40,9 @@ const getFirebaseConfig = (): FirebaseOptions => {
     return fallbackConfig;
   }
 
-  // During server-side build, these might not be available. We should not throw an error here.
-  // Instead, the server-side code should use its own initialization.
-  // Returning an empty object and letting initializeApp handle it.
+  // If no config is found, we should not throw an error on the server during build,
+  // as it might be a server-side only process. Instead, we return an empty object
+  // and let the client-side code handle the missing configuration.
   return {};
 };
 
