@@ -15,12 +15,10 @@ import {
 import { getFirestore } from '@/firebase/server';
 import type { Shift, NewShiftData } from './definitions';
 
-// Use on-demand server-side firestore instance
-const db = getFirestore();
-const shiftsCollection = collection(db, 'shifts');
-
 export async function getShifts(): Promise<Shift[]> {
   try {
+    const db = await getFirestore();
+    const shiftsCollection = collection(db, 'shifts');
     const q = query(shiftsCollection, orderBy('createdAt', 'asc'));
     const querySnapshot = await getDocs(q);
     const shifts = querySnapshot.docs.map((doc) => {
@@ -39,6 +37,8 @@ export async function getShifts(): Promise<Shift[]> {
 }
 
 export async function addShift(newShiftData: NewShiftData) {
+  const db = await getFirestore();
+  const shiftsCollection = collection(db, 'shifts');
   const shiftWithTimestamp = {
     ...newShiftData,
     createdAt: Timestamp.fromDate(new Date()),
@@ -47,11 +47,14 @@ export async function addShift(newShiftData: NewShiftData) {
 }
 
 export async function deleteShift(shiftId: string) {
+  const db = await getFirestore();
   const shiftDoc = doc(db, 'shifts', shiftId);
   await deleteDoc(shiftDoc);
 }
 
 export async function getShiftsForDate(date: string) {
+  const db = await getFirestore();
+  const shiftsCollection = collection(db, 'shifts');
   const q = query(shiftsCollection, where('date', '==', date));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(
@@ -63,6 +66,9 @@ export async function canPublishShift(
   date: string,
   userId: string
 ): Promise<boolean> {
+  const db = await getFirestore();
+  const shiftsCollection = collection(db, 'shifts');
+
   // Check total shifts for the day
   const dayQuery = query(shiftsCollection, where('date', '==', date), limit(2));
   const daySnapshot = await getDocs(dayQuery);

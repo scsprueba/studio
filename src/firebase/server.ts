@@ -26,4 +26,4 @@ function getFirestoreInstance() {
 }
 
 // For server-side, it's often better to initialize on-demand.
-export const getFirestore = () => getFirestoreInstance();
+export const getFirestore = async () => getFirestoreInstance();
