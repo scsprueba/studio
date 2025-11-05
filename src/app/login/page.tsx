@@ -1,6 +1,10 @@
 'use client';
 
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+} from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
@@ -9,7 +13,6 @@ import { Chrome } from 'lucide-react';
 import { useFirebase } from '@/firebase/provider';
 
 function LoginButton() {
-  const router = useRouter();
   const { auth } = useFirebase();
 
   const handleSignIn = async () => {
@@ -18,12 +21,7 @@ function LoginButton() {
       return;
     }
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      router.push('/');
-    } catch (error) {
-      console.error('Error signing in with Google', error);
-    }
+    await signInWithRedirect(auth, provider);
   };
 
   return (
@@ -36,20 +34,39 @@ function LoginButton() {
 
 export default function LoginPage() {
   const { user, loading } = useUser();
+  const { auth } = useFirebase();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!auth) return;
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          router.push('/');
+        }
+      })
+      .catch((error) => {
+        console.error('Error getting redirect result', error);
+      })
+      .finally(() => {
+        // This combines redirect loading and initial auth state loading
+        setAuthLoading(loading);
+      });
+  }, [auth, router, loading]);
+
+  useEffect(() => {
+    if (!authLoading && user) {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
-  const showLoading = loading || user;
+  const showLoading = authLoading || (!isClient && loading) || user;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
