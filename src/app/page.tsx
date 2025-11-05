@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import CalendarView from '@/components/calendar-view';
 import { Button } from '@/components/ui/button';
 import { auth } from '@/firebase/client';
-import { useShifts } from '@/firebase/hooks/use-shifts';
+import { useShifts } from '@/firebase/provider';
 
 export default function Home() {
   const { user, loading } = useUser();

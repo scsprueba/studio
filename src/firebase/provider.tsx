@@ -1,15 +1,19 @@
 'use client';
+
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { db } from '@/firebase/client';
 import { onSnapshot, collection, query, orderBy } from 'firebase/firestore';
 import type { Shift } from '@/lib/definitions';
+import { db } from '@/firebase/client';
 
 interface FirebaseContextValue {
   shifts: Shift[];
   loading: boolean;
 }
 
-const FirebaseContext = createContext<FirebaseContextValue | null>(null);
+const FirebaseContext = createContext<FirebaseContextValue>({
+  shifts: [],
+  loading: true,
+});
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -42,10 +46,10 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export const useFirebase = () => {
+export const useShifts = () => {
     const context = useContext(FirebaseContext);
-    if (!context) {
-        throw new Error('useFirebase must be used within a FirebaseProvider');
+    if (context === undefined) {
+        throw new Error('useShifts must be used within a FirebaseProvider');
     }
     return context;
 };
