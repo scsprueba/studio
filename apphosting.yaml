@@ -1,9 +1,9 @@
 # The backend that will be created for your app
-# backend:
-#   # The entry point for your app's server
-#   entryPoint: .
-#   # The region to deploy your backend
-#   region: us-central1
+backend:
+  # The entry point for your app's server
+  entryPoint: .
+  # The region to deploy your backend
+  region: us-central1
 
 # The static assets from your app that will be served
 static:
