@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import ShiftModal from './shift-modal';
 import { cn } from '@/lib/utils';
-import { useShifts } from '@/firebase/provider';
+import { useShifts } from '@/app/client-provider';
 
 interface CalendarViewProps {
   initialShifts: Shift[];

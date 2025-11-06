@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import CalendarView from '@/components/calendar-view';
 import { Button } from '@/components/ui/button';
-import { useShifts } from '@/firebase/provider';
+import { useShifts } from '@/app/client-provider';
 
 export default function Home() {
   const { shifts, loading: shiftsLoading } = useShifts();
