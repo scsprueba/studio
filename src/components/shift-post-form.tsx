@@ -24,7 +24,7 @@ import {
 import { addShiftAction } from '@/lib/actions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
-import { startTransition } from 'react';
+import { useActionState, useEffect } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -68,6 +68,12 @@ export default function ShiftPostForm({
   onFormSubmitSuccess,
 }: ShiftPostFormProps) {
   const { toast } = useToast();
+
+  const [state, formAction] = useActionState(addShiftAction, {
+    message: '',
+    error: undefined,
+  });
+
   const form = useForm<ShiftFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -81,24 +87,26 @@ export default function ShiftPostForm({
     },
   });
 
+  useEffect(() => {
+    if (state.message && !state.error) {
+      toast({
+        title: '¡Guardia Publicada!',
+        description: state.message,
+      });
+      onFormSubmitSuccess();
+      form.reset();
+    } else if (state.error) {
+      toast({
+        title: 'Error al publicar',
+        description: state.error,
+        variant: 'destructive',
+      });
+    }
+  }, [state, toast, onFormSubmitSuccess, form]);
+  
+  // We use a wrapper function for the form's onSubmit to pass the form data to the server action.
   const onSubmit = (values: ShiftFormValues) => {
-    startTransition(async () => {
-      const result = await addShiftAction(values);
-      if (result?.error) {
-        toast({
-          title: 'Error al publicar',
-          description: result.error,
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: '¡Guardia Publicada!',
-          description: 'Tu guardia ha sido publicada correctamente.',
-        });
-        onFormSubmitSuccess();
-        form.reset();
-      }
-    });
+    formAction(values);
   };
 
   return (

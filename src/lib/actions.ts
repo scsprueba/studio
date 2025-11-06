@@ -22,12 +22,16 @@ const FormSchema = z.object({
 
 const AddShiftSchema = FormSchema;
 
-export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
+export async function addShiftAction(
+  prevState: { message: string; error?: string },
+  data: z.infer<typeof AddShiftSchema>
+): Promise<{ message: string; error?: string }> {
   try {
     const validatedFields = AddShiftSchema.safeParse(data);
 
     if (!validatedFields.success) {
       return {
+        ...prevState,
         error: 'Error de validación. Por favor, revisa los campos.',
       };
     }
@@ -35,19 +39,22 @@ export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
     const { date, userId } = validatedFields.data;
 
     const canPublish = await canPublishShift(date, userId);
-    if (!canPublish) {
+    if (!canPublish.allowed) {
       return {
-        error:
-          'Ya has publicado una guardia para este día o el cupo está lleno.',
+        ...prevState,
+        error: canPublish.reason,
       };
     }
 
     await addShift(validatedFields.data);
-    revalidatePath('/');
-    return { message: 'Guardia publicada correctamente.' };
+
+    // This revalidation is for server-side cache. The client updates via onSnapshot.
+    revalidatePath('/'); 
+
+    return { message: 'Tu guardia ha sido publicada correctamente.', error: undefined };
   } catch (error) {
     console.error('Error in addShiftAction:', error);
-    return { error: 'Error del servidor al publicar la guardia.' };
+    return { ...prevState, error: 'Error del servidor al publicar la guardia.' };
   }
 }
 

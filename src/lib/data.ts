@@ -65,7 +65,7 @@ export async function getShiftsForDate(date: string) {
 export async function canPublishShift(
   date: string,
   userId: string
-): Promise<boolean> {
+): Promise<{ allowed: boolean; reason?: string }> {
   const db = await getFirestore();
   const shiftsCollection = collection(db, 'shifts');
 
@@ -73,7 +73,10 @@ export async function canPublishShift(
   const dayQuery = query(shiftsCollection, where('date', '==', date), limit(2));
   const daySnapshot = await getDocs(dayQuery);
   if (daySnapshot.size >= 2) {
-    return false;
+    return {
+      allowed: false,
+      reason: 'Ya hay 2 guardias publicadas. No se pueden añadir más.',
+    };
   }
 
   // Check if user has already posted for that day
@@ -85,8 +88,11 @@ export async function canPublishShift(
   );
   const userSnapshot = await getDocs(userQuery);
   if (!userSnapshot.empty) {
-    return false;
+    return {
+      allowed: false,
+      reason: 'Ya has publicado una guardia para este día.',
+    };
   }
 
-  return true;
+  return { allowed: true };
 }
