@@ -23,28 +23,30 @@ const FormSchema = z.object({
 const AddShiftSchema = FormSchema;
 
 export async function addShiftAction(data: z.infer<typeof AddShiftSchema>) {
-  const validatedFields = AddShiftSchema.safeParse(data);
-
-  if (!validatedFields.success) {
-    return {
-      error: 'Error de validación. Por favor, revisa los campos.',
-    };
-  }
-
-  const { date, userId } = validatedFields.data;
-
-  const canPublish = await canPublishShift(date, userId);
-  if (!canPublish) {
-    return {
-      error: 'Ya has publicado una guardia para este día o el cupo está lleno.',
-    };
-  }
-
   try {
+    const validatedFields = AddShiftSchema.safeParse(data);
+
+    if (!validatedFields.success) {
+      return {
+        error: 'Error de validación. Por favor, revisa los campos.',
+      };
+    }
+
+    const { date, userId } = validatedFields.data;
+
+    const canPublish = await canPublishShift(date, userId);
+    if (!canPublish) {
+      return {
+        error:
+          'Ya has publicado una guardia para este día o el cupo está lleno.',
+      };
+    }
+
     await addShift(validatedFields.data);
     revalidatePath('/');
     return { message: 'Guardia publicada correctamente.' };
   } catch (error) {
+    console.error('Error in addShiftAction:', error);
     return { error: 'Error del servidor al publicar la guardia.' };
   }
 }
@@ -63,6 +65,7 @@ export async function deleteShiftAction(
     revalidatePath('/');
     return { message: 'La guardia ha sido marcada como cambiada y eliminada.' };
   } catch (e) {
+    console.error('Error in deleteShiftAction:', e);
     return { message: '', error: 'Error al eliminar la guardia.' };
   }
 }
