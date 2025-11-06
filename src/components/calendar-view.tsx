@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { useShifts } from '@/app/client-provider';
 
 interface CalendarViewProps {
-  initialShifts: Shift[];
   userId: string;
 }
 
@@ -21,7 +20,6 @@ const abbreviatedLocation = (location: 'C.S. Granadilla' | 'SNU San Isidro') => 
 };
 
 export default function CalendarView({
-  initialShifts,
   userId,
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -30,12 +28,11 @@ export default function CalendarView({
   const { shifts } = useShifts();
 
   const shiftsByDate = useMemo(() => {
-    const allShifts = shifts.length > 0 ? shifts : initialShifts;
-    return allShifts.reduce((acc, shift) => {
+    return shifts.reduce((acc, shift) => {
       (acc[shift.date] = acc[shift.date] || []).push(shift);
       return acc;
     }, {} as Record<string, Shift[]>);
-  }, [shifts, initialShifts]);
+  }, [shifts]);
 
   const monthNames = [
     'Enero',

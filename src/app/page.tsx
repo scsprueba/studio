@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useShifts } from '@/app/client-provider';
 
 export default function Home() {
-  const { shifts, loading: shiftsLoading } = useShifts();
+  const { loading: shiftsLoading } = useShifts();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -49,7 +49,7 @@ export default function Home() {
         </div>
       </header>
       <main className="max-w-4xl mx-auto">
-        <CalendarView initialShifts={shifts} userId="shared-user" />
+        <CalendarView userId="shared-user" />
       </main>
     </div>
   );
