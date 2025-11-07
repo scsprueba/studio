@@ -166,7 +166,7 @@ export default function ShiftPostForm({
               <FormItem>
                 <FormLabel>Horario</FormLabel>
                 <Select
-                  onValuechaChange={field.onChange}
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                   name={field.name}
                 >
