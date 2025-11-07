@@ -31,30 +31,29 @@ export async function addShiftAction(
 
     if (!validatedFields.success) {
       return {
-        ...prevState,
+        message: '',
         error: 'Error de validación. Por favor, revisa los campos.',
       };
     }
-
+    
     const { date, userId } = validatedFields.data;
-
+    
     const canPublish = await canPublishShift(date, userId);
     if (!canPublish.allowed) {
       return {
-        ...prevState,
+        message: '',
         error: canPublish.reason,
       };
     }
 
     await addShift(validatedFields.data);
 
-    // This revalidation is for server-side cache. The client updates via onSnapshot.
     revalidatePath('/'); 
-
     return { message: 'Tu guardia ha sido publicada correctamente.', error: undefined };
+
   } catch (error) {
     console.error('Error in addShiftAction:', error);
-    return { ...prevState, error: 'Error del servidor al publicar la guardia.' };
+    return { message: '', error: 'Error del servidor al publicar la guardia.' };
   }
 }
 

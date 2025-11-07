@@ -88,14 +88,14 @@ export default function ShiftPostForm({
   });
 
   useEffect(() => {
-    if (state.message && !state.error) {
+    if (state?.message && !state.error) {
       toast({
         title: '¡Guardia Publicada!',
         description: state.message,
       });
       onFormSubmitSuccess();
       form.reset();
-    } else if (state.error) {
+    } else if (state?.error) {
       toast({
         title: 'Error al publicar',
         description: state.error,
@@ -103,8 +103,7 @@ export default function ShiftPostForm({
       });
     }
   }, [state, toast, onFormSubmitSuccess, form]);
-  
-  // We use a wrapper function for the form's onSubmit to pass the form data to the server action.
+
   const onSubmit = (values: ShiftFormValues) => {
     formAction(values);
   };
