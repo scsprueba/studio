@@ -57,7 +57,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   const app = useMemo(() => {
     // Check if essential Firebase config values are present
     if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
-      setError('Missing Firebase config. Make sure to set up your .env file.');
+      setError('Falta la configuración de Firebase. Asegúrate de que tu archivo .env está configurado y que todas las variables usan el prefijo NEXT_PUBLIC_.');
       return null;
     }
     try {
@@ -74,7 +74,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!db) {
-      if(app && !error) setError("Firestore database could not be initialized.");
+      if(app && !error) setError("La base de datos Firestore no pudo ser inicializada.");
       setLoading(false);
       return;
     }
@@ -96,8 +96,8 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       },
       (err) => {
-        console.error('Error fetching shifts:', err);
-        setError('Failed to fetch shifts. Check Firestore permissions and configuration.');
+        console.error('Error al obtener los turnos:', err);
+        setError('Fallo al obtener los turnos. Revisa los permisos de Firestore y la configuración del proyecto.');
         setLoading(false);
       }
     );
@@ -116,7 +116,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
           <h2 className="font-bold">Error de Configuración de Firebase</h2>
           <p className="text-sm mt-2">{error}</p>
           <p className="text-xs mt-4">
-            Por favor, asegúrate de haber creado un archivo <code>.env</code> en la raíz del proyecto y haber añadido las credenciales de tu proyecto de Firebase.
+            Por favor, asegúrate de haber creado un archivo <code>.env</code> en la raíz del proyecto y haber añadido las credenciales de tu proyecto de Firebase. Todas las variables deben empezar con <code>NEXT_PUBLIC_</code>.
           </p>
         </div>
       </div>
@@ -139,15 +139,15 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 export const useFirebase = () => {
   const context = useContext(FirebaseContext);
   if (context === null) {
-    throw new Error('useFirebase must be used within a FirebaseProvider');
+    throw new Error('useFirebase debe ser usado dentro de un FirebaseProvider');
   }
   return context;
 };
 
 export const useShifts = () => {
   const context = useContext(FirebaseContext);
-  if (context === null) {_
-    throw new Error('useShifts must be used within a FirebaseProvider');
+  if (context === null) {
+    throw new Error('useShifts debe ser usado dentro de un FirebaseProvider');
   }
   return { shifts: context.shifts, loading: context.loading };
 };
