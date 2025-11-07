@@ -33,6 +33,7 @@ export default function Home() {
         </div>
       </header>
       <main className="max-w-4xl mx-auto">
+        {/* Usamos un ID de usuario estático porque ya no hay login */}
         <CalendarView userId="shared-user" />
       </main>
     </div>

@@ -37,7 +37,7 @@ export default function ShiftModal({
     }
   );
 
-  // A user can only post one shift per day.
+  // Un usuario solo puede publicar un turno por día.
   const userHasPosted = shifts.some((s) => s.userId === userId);
   const canPublish = shifts.length < 2 && !userHasPosted;
 
@@ -51,7 +51,7 @@ export default function ShiftModal({
             {formattedDate}
           </DialogTitle>
           <DialogDescription>
-            {hasShifts
+             {hasShifts
               ? 'Guardias disponibles para cambio en este día.'
               : 'No hay guardias publicadas. ¡Sé el primero/a!'}
           </DialogDescription>

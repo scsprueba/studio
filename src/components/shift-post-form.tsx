@@ -24,6 +24,7 @@ import {
 import { addShift, canPublishShift } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useFirebase } from '@/app/client-provider';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -59,6 +60,7 @@ export default function ShiftPostForm({
 }: ShiftPostFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { db } = useFirebase();
 
   const form = useForm<ShiftFormValues>({
     resolver: zodResolver(formSchema),
@@ -76,7 +78,7 @@ export default function ShiftPostForm({
   async function onSubmit(values: ShiftFormValues) {
     setIsSubmitting(true);
     try {
-      const canPublishResult = await canPublishShift(values.date, values.userId);
+      const canPublishResult = await canPublishShift(db, values.date, values.userId);
       if (!canPublishResult.allowed) {
         toast({
           title: 'No se puede publicar',
@@ -87,7 +89,7 @@ export default function ShiftPostForm({
         return;
       }
       
-      await addShift(values);
+      await addShift(db, values);
 
       toast({
         title: '¡Guardia Publicada!',
@@ -99,7 +101,7 @@ export default function ShiftPostForm({
       console.error('Error al publicar la guardia:', error);
       toast({
         title: 'Error al publicar',
-        description: 'Ha ocurrido un error al intentar publicar la guardia.',
+        description: 'Ha ocurrido un error. Por favor, inténtalo de nuevo.',
         variant: 'destructive',
       });
     } finally {
@@ -124,7 +126,7 @@ export default function ShiftPostForm({
               <FormItem>
                 <FormLabel>Mi Nombre (Visible)</FormLabel>
                 <FormControl>
-                  <Input placeholder="" {...field} />
+                  <Input placeholder="Tu nombre" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -164,14 +166,14 @@ export default function ShiftPostForm({
               <FormItem>
                 <FormLabel>Horario</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValuechaChange={field.onChange}
                   defaultValue={field.value}
                   name={field.name}
                 >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona el horario" />
-                    </SelectTrigger>
+                    </Trigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="20h a 8h">20h a 8h</SelectItem>
@@ -191,7 +193,7 @@ export default function ShiftPostForm({
               <FormItem>
                 <FormLabel>Teléfono (WhatsApp)</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="" {...field} />
+                  <Input type="tel" placeholder="Ej: 612345678" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -204,7 +206,7 @@ export default function ShiftPostForm({
               <FormItem>
                 <FormLabel>Notas para el Cambio (Opcional)</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="" {...field} />
+                  <Textarea placeholder="Ej: Busco cambio por otro día, etc." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

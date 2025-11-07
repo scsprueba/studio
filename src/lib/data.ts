@@ -13,31 +13,11 @@ import {
   limit,
 } from 'firebase/firestore';
 import { getFirestore } from '@/firebase/server';
-import type { Shift, NewShiftData } from './definitions';
+import type { NewShiftData } from './definitions';
 
-export async function getShifts(): Promise<Shift[]> {
-  try {
-    const db = await getFirestore();
-    const shiftsCollection = collection(db, 'shifts');
-    const q = query(shiftsCollection, orderBy('createdAt', 'asc'));
-    const querySnapshot = await getDocs(q);
-    const shifts = querySnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp).toDate(),
-      } as Shift;
-    });
-    return shifts;
-  } catch (error) {
-    console.error('Error fetching shifts from Firestore:', error);
-    return [];
-  }
-}
-
-export async function addShift(newShiftData: NewShiftData) {
-  const db = await getFirestore();
+// Esta función se puede llamar desde el cliente para añadir un turno.
+// Usa la misma instancia de Firestore que el provider del cliente.
+export async function addShift(db: any, newShiftData: NewShiftData) {
   const shiftsCollection = collection(db, 'shifts');
   const shiftWithTimestamp = {
     ...newShiftData,
@@ -46,27 +26,18 @@ export async function addShift(newShiftData: NewShiftData) {
   await addDoc(shiftsCollection, shiftWithTimestamp);
 }
 
-export async function deleteShift(shiftId: string) {
-  const db = await getFirestore();
+// Esta función se puede llamar desde el cliente para borrar un turno.
+export async function deleteShift(db: any, shiftId: string) {
   const shiftDoc = doc(db, 'shifts', shiftId);
   await deleteDoc(shiftDoc);
 }
 
-export async function getShiftsForDate(date: string) {
-  const db = await getFirestore();
-  const shiftsCollection = collection(db, 'shifts');
-  const q = query(shiftsCollection, where('date', '==', date));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() } as Shift)
-  );
-}
-
+// Esta función se puede llamar desde el cliente para comprobar si se puede publicar
 export async function canPublishShift(
+  db: any,
   date: string,
   userId: string
 ): Promise<{ allowed: boolean; reason?: string }> {
-  const db = await getFirestore();
   const shiftsCollection = collection(db, 'shifts');
 
   // Check total shifts for the day

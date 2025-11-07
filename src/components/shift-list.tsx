@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { deleteShiftAction } from '@/lib/actions';
+import { deleteShift } from '@/lib/data';
 import {
   Phone,
   CheckCircle,
@@ -18,38 +18,28 @@ import {
   MapPin,
   FileText,
   Star,
+  Trash2,
 } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
-import { useActionState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useFirebase } from '@/app/client-provider';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface ShiftListProps {
   shifts: Shift[];
   userId: string;
   onActionSuccess: () => void;
-}
-
-function DeleteButton({ shiftId }: { shiftId: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      variant="outline"
-      className="w-full mt-2 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-600 dark:text-green-500 dark:hover:bg-green-950"
-      disabled={pending}
-      aria-label="Marcar como cambiada"
-    >
-      {pending ? (
-        'Marcando...'
-      ) : (
-        <>
-          <CheckCircle className="w-5 h-5 mr-2" />
-          Marcar como Cambiada
-        </>
-      )}
-    </Button>
-  );
 }
 
 export default function ShiftList({
@@ -58,24 +48,29 @@ export default function ShiftList({
   onActionSuccess,
 }: ShiftListProps) {
   const { toast } = useToast();
+  const { db } = useFirebase();
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  const [state, formAction] = useActionState(deleteShiftAction, {
-    message: '',
-    error: undefined,
-  });
-
-  useEffect(() => {
-    if (state?.message && !state.error) {
+  const handleDelete = async (shiftId: string) => {
+    setIsDeleting(shiftId);
+    try {
+      await deleteShift(db, shiftId);
+      toast({
+        title: 'Guardia Eliminada',
+        description: 'La guardia ha sido marcada como cambiada y eliminada.',
+      });
       onActionSuccess();
-    }
-    if (state?.error) {
+    } catch (error) {
+      console.error('Error al eliminar la guardia:', error);
       toast({
         title: 'Error',
-        description: state.error,
+        description: 'No se pudo eliminar la guardia.',
         variant: 'destructive',
       });
+    } finally {
+      setIsDeleting(null);
     }
-  }, [state, toast, onActionSuccess]);
+  };
 
   if (shifts.length === 0) {
     return null;
@@ -133,10 +128,38 @@ export default function ShiftList({
             </CardContent>
             <CardFooter className="p-4 pt-0">
               {isOwner ? (
-                <form action={formAction} className="w-full">
-                  <input type="hidden" name="shiftId" value={shift.id} />
-                  <DeleteButton shiftId={shift.id} />
-                </form>
+                 <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full mt-2 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-600 dark:text-green-500 dark:hover:bg-green-950"
+                      disabled={isDeleting === shift.id}
+                    >
+                      {isDeleting === shift.id ? (
+                        'Marcando...'
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Marcar como Cambiada
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Confirmar cambio?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esto eliminará permanentemente la guardia del calendario. Esta acción no se puede deshacer.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(shift.id!)}>
+                        Sí, eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               ) : (
                 <Button asChild className="w-full whatsapp-btn hover:bg-[#20b757]">
                   <a
