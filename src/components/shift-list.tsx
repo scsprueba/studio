@@ -18,13 +18,13 @@ const summarizeTime = (time: Shift['time']) => {
 };
 
 const ShiftItem = ({ shift, onView }: { shift: Shift; onView: ShiftListProps['onView'] }) => (
-  <button onClick={() => onView(shift)} className="shift-item-compact w-full text-left hover:bg-primary/10 rounded-sm">
-      <div className="font-semibold text-primary">
+  <button onClick={() => onView(shift)} className="shift-item-compact w-full text-left hover:bg-primary/20 rounded-sm">
+      <div className="font-semibold text-card-foreground">
         <span>
           {shift.name} ({summarizeTime(shift.time)})
         </span>
       </div>
-      <div className="text-foreground font-medium">
+      <div className="text-card-foreground/90 font-medium">
         <span>{summarizeLocation(shift.location)}</span>
       </div>
   </button>

@@ -141,11 +141,11 @@ export default function CalendarView() {
         )}
       >
         <div className="flex justify-between items-center">
-          <span className={cn('text-lg font-bold', hasShifts ? 'text-primary' : 'text-foreground/80')}>
+          <span className={cn('text-lg font-bold text-card-foreground')}>
             {day}
           </span>
            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleOpenModalForNew(dateString)} disabled={!canAddShift}>
-              <PlusCircle className="h-5 w-5 text-primary"/>
+              <PlusCircle className="h-5 w-5 text-yellow-300"/>
            </Button>
         </div>
         
@@ -161,21 +161,21 @@ export default function CalendarView() {
 
   return (
     <>
-      <Card className="shadow-xl overflow-hidden">
-        <div className="flex justify-between items-center p-3 bg-card">
+      <Card className="shadow-xl overflow-hidden bg-transparent border-0">
+        <div className="flex justify-between items-center p-3">
           <Button variant="ghost" size="icon" onClick={handlePrevMonth} aria-label="Mes anterior">
-            <ChevronLeft className="w-6 h-6 text-primary" />
+            <ChevronLeft className="w-6 h-6 text-foreground" />
           </Button>
           <h2 className="text-xl font-bold text-foreground font-headline">
             {monthNames[currentMonth]} {currentYear}
           </h2>
           <Button variant="ghost" size="icon" onClick={handleNextMonth} aria-label="Mes siguiente">
-            <ChevronRight className="w-6 h-6 text-primary" />
+            <ChevronRight className="w-6 h-6 text-foreground" />
           </Button>
         </div>
-        <div className="grid grid-cols-7 text-center font-semibold text-sm text-muted-foreground mb-2 px-2">
+        <div className="grid grid-cols-7 text-center font-semibold text-sm text-foreground/80 mb-2 px-2">
           {dayNames.map((name, i) => (
-            <span key={name} className={cn(i > 4 && 'text-destructive/70')}>{name}</span>
+            <span key={name} className={cn(i > 4 && 'text-red-500/80')}>{name}</span>
           ))}
         </div>
         <CardContent className="p-2">
