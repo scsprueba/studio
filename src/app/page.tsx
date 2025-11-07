@@ -11,7 +11,7 @@ export default function Home() {
             GuardiaSwap
           </h1>
           <p className="text-muted-foreground text-sm md:text-base mt-1">
-            Intercambio de guardias. Toca un día para editar el texto.
+            Intercambio de guardias. Haz clic en un día para publicar o ver guardias.
           </p>
         </div>
       </header>
