@@ -8,38 +8,39 @@ body {
 
 @layer base {
   :root {
-    --background: 220 15% 20%; /* Dark Grey/Blue */
-    --foreground: 210 40% 98%;
+    --background: 0 0% 98%; /* Light Gray (was 240 10% 3.9%) */
+    --foreground: 240 5.9% 10%; /* Dark Text (was 0 0% 98%) */
+    
+    --card: 0 0% 100%; /* White (was 240 10% 3.9%) */
+    --card-foreground: 240 5.9% 10%; /* Dark Text (was 0 0% 98%) */
 
-    --card: 220 25% 28%; /* Dark Blue for weekdays */
-    --card-foreground: 0 0% 100%; /* White */
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 240 5.9% 10%; /* Dark Text */
 
-    --popover: 220 15% 15%;
-    --popover-foreground: 210 40% 98%;
+    --primary: 262.1 83.3% 57.8%; /* Indigo */
+    --primary-foreground: 0 0% 98%; /* Light Text */
 
-    --primary: 215 70% 55%; /* Intense Blue for primary actions */
-    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96.1%; /* Light Gray */
+    --secondary-foreground: 240 5.9% 10%; /* Dark Text */
 
-    --secondary: 220 15% 30%;
-    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 96.1%; /* Light Gray */
+    --muted-foreground: 240 3.8% 46.1%; /* Gray Text */
 
-    --muted: 220 15% 30%;
-    --muted-foreground: 215 20% 65%;
+    --accent: 180 82% 35%; /* Teal */
+    --accent-foreground: 0 0% 98%; /* Light Text */
 
-    --accent: 215 70% 55%; 
-    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 262.1 83.3% 57.8%;
 
-    --border: 220 15% 30%;
-    --input: 220 15% 30%;
-    --ring: 215 70% 65%;
     --radius: 0.5rem;
 
     /* Custom variables */
-    --weekend-card: 220 25% 32%; /* Slightly lighter/brighter blue for weekends */
-    --shift-item-background: 215 40% 40%;
+    --weekend-card: 0 0% 96%; /* Slightly darker gray for weekends */
+    --shift-item-background: 262.1 83.3% 57.8%; /* Primary color */
   }
 
   .dark {
@@ -49,19 +50,22 @@ body {
     --card-foreground: 0 0% 100%;
     --popover: 220 15% 15%;
     --popover-foreground: 210 40% 98%;
-    --primary: 215 70% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
     --secondary: 220 15% 30%;
     --secondary-foreground: 210 40% 98%;
     --muted: 220 15% 30%;
     --muted-foreground: 215 20% 65%;
-    --accent: 215 70% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 180 82% 35%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 210 40% 98%;
     --border: 220 15% 30%;
     --input: 220 15% 30%;
     --ring: 215 70% 65%;
+    
+    --weekend-card: 220 25% 32%; 
+    --shift-item-background: 215 40% 40%;
   }
 }
 
@@ -95,7 +99,7 @@ body {
     @apply bg-[#25d366] text-white hover:bg-[#20b757];
   }
   .shift-item-compact {
-    @apply p-1.5 text-xs leading-tight rounded;
+    @apply p-1.5 text-xs leading-tight rounded text-primary-foreground;
     background-color: hsl(var(--shift-item-background));
   }
 }
