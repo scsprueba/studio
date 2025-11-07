@@ -40,7 +40,7 @@ body {
 
     /* Custom variables */
     --weekend-card: 210 40% 94%; /* Slightly darker blue for weekends */
-    --shift-item-background: 221.2 83.2% 53.3%; /* Primary color for shifts */
+    --shift-item-background: 145 58% 90%; /* Soft Green for shifts */
   }
 
   .dark {
@@ -65,7 +65,7 @@ body {
     --ring: 212.7 26.8% 83.9%;
     
     --weekend-card: 216 34% 22%;
-    --shift-item-background: 217.2 91.2% 59.8%;
+    --shift-item-background: 145 63% 42%;
   }
 }
 
@@ -99,7 +99,7 @@ body {
     @apply bg-[#25d366] text-white hover:bg-[#20b757];
   }
   .shift-item-compact {
-    @apply p-1.5 text-xs leading-tight rounded text-primary-foreground;
+    @apply p-1.5 text-xs leading-tight rounded text-foreground;
     background-color: hsl(var(--shift-item-background));
   }
 }
