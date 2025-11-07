@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { addShift, deleteShift, canPublishShift } from './data';
 import { revalidatePath } from 'next/cache';
+import type { NewShiftData } from './definitions';
 
 const FormSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -24,7 +25,7 @@ const AddShiftSchema = FormSchema;
 
 export async function addShiftAction(
   prevState: { message: string; error?: string },
-  data: z.infer<typeof AddShiftSchema>
+  data: NewShiftData
 ): Promise<{ message: string; error?: string }> {
   try {
     const validatedFields = AddShiftSchema.safeParse(data);
@@ -48,9 +49,8 @@ export async function addShiftAction(
 
     await addShift(validatedFields.data);
 
-    revalidatePath('/'); 
+    revalidatePath('/');
     return { message: 'Tu guardia ha sido publicada correctamente.', error: undefined };
-
   } catch (error) {
     console.error('Error in addShiftAction:', error);
     return { message: '', error: 'Error del servidor al publicar la guardia.' };

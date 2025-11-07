@@ -25,6 +25,7 @@ import { addShiftAction } from '@/lib/actions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useActionState, useEffect, useRef } from 'react';
+import type { NewShiftData } from '@/lib/definitions';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -96,7 +97,7 @@ export default function ShiftPostForm({
       });
       onFormSubmitSuccess();
       form.reset();
-      formRef.current?.reset();
+      // We don't need formRef.current?.reset() as react-hook-form handles it
     } else if (state?.error) {
       toast({
         title: 'Error al publicar',
@@ -105,6 +106,11 @@ export default function ShiftPostForm({
       });
     }
   }, [state, toast, onFormSubmitSuccess, form]);
+  
+  // Wrapper function to pass validated data to the server action
+  const handleFormSubmit = (data: ShiftFormValues) => {
+    formAction(data);
+  };
 
   return (
     <div>
@@ -112,9 +118,12 @@ export default function ShiftPostForm({
         Publicar mi guardia para cambiar
       </h4>
       <Form {...form}>
-        <form ref={formRef} action={formAction} className="space-y-4">
-          <input type="hidden" {...form.register('userId')} value={userId} />
-          <input type="hidden" {...form.register('date')} value={selectedDate} />
+        <form
+          ref={formRef}
+          action={formAction}
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="name"

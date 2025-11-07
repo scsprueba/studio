@@ -50,19 +50,21 @@ export default function ShiftModal({
           <DialogTitle className="text-2xl font-bold text-primary font-headline capitalize">
             {formattedDate}
           </DialogTitle>
-          {hasShifts && (
-            <DialogDescription>
-              Guardias disponibles para cambio en este día.
-            </DialogDescription>
-          )}
+          <DialogDescription>
+            {hasShifts
+              ? 'Guardias disponibles para cambio en este día.'
+              : 'No hay guardias publicadas. ¡Sé el primero/a!'}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-grow overflow-y-auto pr-2 -mr-4 pl-1">
-          <ShiftList
-            shifts={shifts}
-            userId={userId}
-            onActionSuccess={onClose}
-          />
+          {hasShifts && (
+            <ShiftList
+              shifts={shifts}
+              userId={userId}
+              onActionSuccess={onClose}
+            />
+          )}
 
           {canPublish && (
             <>
