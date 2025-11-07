@@ -145,7 +145,7 @@ export default function CalendarView() {
             {day}
           </span>
            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleOpenModalForNew(dateString)} disabled={!canAddShift}>
-              <PlusCircle className="h-5 w-5 text-yellow-300"/>
+              <PlusCircle className="h-5 w-5 text-yellow-400"/>
            </Button>
         </div>
         

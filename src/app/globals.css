@@ -8,74 +8,60 @@ body {
 
 @layer base {
   :root {
-    --background: 200 50% 95%; /* Soft Blue */
-    --foreground: 222.2 84% 4.9%;
-    --card: 215 70% 55%; /* Intense Blue */
+    --background: 220 15% 20%; /* Dark Grey/Blue */
+    --foreground: 210 40% 98%;
+
+    --card: 220 25% 28%; /* Dark Blue for weekdays */
     --card-foreground: 0 0% 100%; /* White */
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 215 70% 45%; /* Darker Intense Blue for primary actions */
+
+    --popover: 220 15% 15%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 215 70% 55%; /* Intense Blue for primary actions */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 215 70% 45%; 
+
+    --secondary: 220 15% 30%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 220 15% 30%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 215 70% 55%; 
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
+
+    --destructive: 0 62% 50%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 215 70% 45%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    --border: 220 15% 30%;
+    --input: 220 15% 30%;
+    --ring: 215 70% 65%;
     --radius: 0.5rem;
-    --sidebar-background: 210 17% 98%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 242 78% 62%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 180 100% 25%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 242 78% 62%;
+
+    /* Custom variables */
+    --weekend-card: 220 25% 32%; /* Slightly lighter/brighter blue for weekends */
+    --shift-item-background: 215 40% 40%;
   }
 
   .dark {
-    --background: 220 40% 10%;
+    --background: 220 15% 20%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --card: 220 25% 28%;
+    --card-foreground: 0 0% 100%;
+    --popover: 220 15% 15%;
     --popover-foreground: 210 40% 98%;
-    --primary: 243 73% 58%;
+    --primary: 215 70% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 220 15% 30%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 180 100% 35%;
+    --muted: 220 15% 30%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 215 70% 55%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 243 73% 62%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 222.2 84% 4.9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 242 78% 62%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 180 100% 35%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 242 78% 62%;
+    --border: 220 15% 30%;
+    --input: 220 15% 30%;
+    --ring: 215 70% 65%;
   }
 }
 
@@ -91,24 +77,25 @@ body {
 
 @layer utilities {
   .day-cell {
-    @apply min-h-[120px] transition-transform duration-100 ease-in-out bg-card border-background;
+    @apply min-h-[120px] transition-transform duration-100 ease-in-out bg-card border-transparent;
   }
   .day-cell:hover {
     @apply scale-[1.02] shadow-lg ring-2 ring-primary/50;
   }
   .weekend-cell {
-    @apply bg-primary/70;
+    background-color: hsl(var(--weekend-card));
   }
   .day-cell.has-shifts {
      @apply border-primary/20;
   }
    .day-cell.has-shifts:hover {
-      @apply bg-primary/90;
+      @apply bg-card/80;
    }
   .whatsapp-btn {
     @apply bg-[#25d366] text-white hover:bg-[#20b757];
   }
   .shift-item-compact {
-    @apply p-1.5 border-t border-primary/10 text-xs leading-tight;
+    @apply p-1.5 text-xs leading-tight rounded;
+    background-color: hsl(var(--shift-item-background));
   }
 }

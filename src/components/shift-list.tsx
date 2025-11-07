@@ -18,7 +18,7 @@ const summarizeTime = (time: Shift['time']) => {
 };
 
 const ShiftItem = ({ shift, onView }: { shift: Shift; onView: ShiftListProps['onView'] }) => (
-  <button onClick={() => onView(shift)} className="shift-item-compact w-full text-left hover:bg-primary/20 rounded-sm">
+  <button onClick={() => onView(shift)} className="shift-item-compact w-full text-left hover:bg-primary/20">
       <div className="font-semibold text-card-foreground">
         <span>
           {shift.name} ({summarizeTime(shift.time)})
@@ -34,7 +34,7 @@ export default function ShiftList({ shifts, onView }: ShiftListProps) {
   const visibleShifts = shifts.slice(0, 2);
 
   return (
-    <div className="grid grid-rows-2 mt-1 -mx-1">
+    <div className="grid grid-rows-2 mt-1 -mx-1 gap-1">
       {visibleShifts.map((shift) => (
         <ShiftItem
           key={shift.id}
@@ -43,7 +43,7 @@ export default function ShiftList({ shifts, onView }: ShiftListProps) {
         />
       ))}
       {/* Fill the space if there is only one guard to maintain the height */}
-      {visibleShifts.length === 1 && <div className="shift-item-compact"></div>}
+      {visibleShifts.length === 1 && <div className=""></div>}
     </div>
   );
 }
