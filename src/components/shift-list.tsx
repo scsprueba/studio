@@ -24,7 +24,9 @@ const summarizeTime = (time: Shift['time']) => {
 const ShiftItem = ({ shift, dateString, onEdit, onDelete }: { shift: Shift; dateString: string; onEdit: ShiftListProps['onEdit']; onDelete: ShiftListProps['onDelete'] }) => (
   <div className="shift-item-compact group relative">
     <div className="flex justify-between items-center font-semibold text-primary">
-      <span>{shift.name}</span>
+      <span>
+        {shift.name} ({summarizeTime(shift.time)})
+      </span>
       <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute top-0 right-0">
         <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onEdit(shift, dateString)}>
           <Pencil className="h-3 w-3 text-foreground/70" />
@@ -36,7 +38,6 @@ const ShiftItem = ({ shift, dateString, onEdit, onDelete }: { shift: Shift; date
     </div>
     <div className="flex justify-between items-center text-foreground/90 font-medium">
       <span>{summarizeLocation(shift.location)}</span>
-      <span>{summarizeTime(shift.time)}</span>
     </div>
   </div>
 );
