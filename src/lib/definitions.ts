@@ -1,7 +1,5 @@
 export type Shift = {
-  id: string; // Document ID will be the date string YYYY-MM-DD
-  content: string; // The text content for that day
+  id: string; // Document ID será la fecha en formato YYYY-MM-DD
+  content: string; // El texto para ese día
   updatedAt: Date;
 };
-
-export type NewShiftData = Omit<Shift, 'id' | 'updatedAt'> & { date: string };

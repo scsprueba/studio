@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
@@ -28,6 +28,7 @@ export default function CalendarView() {
 
   const handlePrevMonth = () => setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
   const handleNextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+  
   const handleDayClick = (dateString: string) => {
     setEditingDate(dateString);
   };
@@ -38,7 +39,7 @@ export default function CalendarView() {
       toast({ title: 'Guardado', description: 'Los cambios se han guardado.', className: 'bg-green-100' });
     } catch (error) {
       console.error(error);
-      toast({ title: 'Error', description: 'No se pudo guardar. Revisa los permisos.', variant: 'destructive' });
+      toast({ title: 'Error al guardar', description: 'No se pudo guardar. Revisa los permisos de Firestore.', variant: 'destructive' });
     }
     setEditingDate(null);
   };
@@ -46,10 +47,10 @@ export default function CalendarView() {
   const handleDelete = async (date: string) => {
      try {
       await deleteShiftText(db, date);
-      toast({ title: 'Borrado', description: 'El contenido del día ha sido borrado.' });
+      toast({ title: 'Borrado', description: 'El turno ha sido borrado.' });
     } catch (error) {
       console.error(error);
-      toast({ title: 'Error', description: 'No se pudo borrar.', variant: 'destructive' });
+      toast({ title: 'Error al borrar', description: 'No se pudo borrar el turno.', variant: 'destructive' });
     }
     setEditingDate(null);
   }

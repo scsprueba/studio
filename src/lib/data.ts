@@ -1,25 +1,27 @@
 import {
   doc,
   setDoc,
+  deleteDoc,
   Timestamp,
   Firestore,
 } from 'firebase/firestore';
 
-// This function now "upserts" a document. It creates it if it doesn't exist,
-// or overwrites it if it does. The document ID is the date itself.
+// Esta función crea o sobreescribe un documento. El ID del documento es la fecha.
 export async function saveShiftText(db: Firestore, date: string, content: string) {
   const shiftDocRef = doc(db, 'shifts', date);
-  await setDoc(shiftDocRef, {
-    content: content,
-    updatedAt: Timestamp.fromDate(new Date()),
-  });
+  // Si el contenido está vacío, borramos el documento para mantener la base de datos limpia.
+  if (content.trim() === '') {
+    await deleteDoc(shiftDocRef);
+  } else {
+    await setDoc(shiftDocRef, {
+      content: content,
+      updatedAt: Timestamp.fromDate(new Date()),
+    });
+  }
 }
 
-// The delete operation now just overwrites the content with an empty string.
+// Esta función borra explícitamente el documento.
 export async function deleteShiftText(db: Firestore, date: string) {
   const shiftDocRef = doc(db, 'shifts', date);
-  await setDoc(shiftDocRef, {
-    content: '',
-    updatedAt: Timestamp.fromDate(new Date()),
-  });
+  await deleteDoc(shiftDocRef);
 }
