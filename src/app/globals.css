@@ -81,7 +81,7 @@ body {
 
 @layer utilities {
   .day-cell {
-    @apply min-h-[120px] transition-transform duration-100 ease-in-out bg-card border-transparent;
+    @apply min-h-[120px] transition-transform duration-100 ease-in-out bg-card border border-primary/20;
   }
   .day-cell:hover {
     @apply scale-[1.02] shadow-lg ring-2 ring-primary/50;
@@ -89,17 +89,15 @@ body {
   .weekend-cell {
     background-color: hsl(var(--weekend-card));
   }
-  .day-cell.has-shifts {
-     @apply border-primary/20;
-  }
-   .day-cell.has-shifts:hover {
+   .day-cell:hover {
       @apply bg-card/80;
    }
   .whatsapp-btn {
     @apply bg-[#25d366] text-white hover:bg-[#20b757];
   }
   .shift-item-compact {
-    @apply p-1.5 text-xs leading-tight rounded text-foreground;
+    @apply p-1.5 text-xs leading-tight rounded text-foreground border;
     background-color: hsl(var(--shift-item-background));
+    border-color: hsl(var(--accent));
   }
 }
