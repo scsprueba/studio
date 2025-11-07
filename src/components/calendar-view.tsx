@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
@@ -17,16 +17,45 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
+import { useFirestore, useCollection } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [shiftsByDate, setShiftsByDate] = useState<Record<string, Shift[]>>({});
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [editingShift, setEditingShift] = useState<Shift | null>(null);
+  
+  // State for modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
+  // State for the currently selected/edited/deleted shift
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [editingShift, setEditingShift] = useState<Shift | null>(null);
   const [shiftToDeleteId, setShiftToDeleteId] = useState<string | null>(null);
+
+  const firestore = useFirestore();
+  const shiftsCollection = collection(firestore, 'shifts');
+  const { data: shifts = [], loading } = useCollection(shiftsCollection);
+  const { toast } = useToast();
+
+  const shiftsByDate = useMemo(() => {
+    return shifts.reduce((acc: Record<string, Shift[]>, shift) => {
+      const date = shift.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(shift);
+      return acc;
+    }, {});
+  }, [shifts]);
+
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
@@ -52,63 +81,64 @@ export default function CalendarView() {
     setIsModalOpen(true);
   }
 
-  const handleSaveShift = (shiftData: Omit<Shift, 'id'>, existingId?: string) => {
-    const date = shiftData.date;
-    setShiftsByDate(prev => {
-      const dayShifts = prev[date] ? [...prev[date]] : [];
-      if(existingId) {
-        // Update existing shift
-        const index = dayShifts.findIndex(s => s.id === existingId);
-        if (index > -1) {
-          dayShifts[index] = { ...shiftData, id: existingId };
-        }
-      } else {
-        // Add new shift
-        dayShifts.push({ ...shiftData, id: crypto.randomUUID() });
-      }
-      return { ...prev, [date]: dayShifts };
-    });
-    closeModal();
+  const handleSaveShift = async (shiftData: Omit<Shift, 'id' | 'createdAt'>, existingId?: string) => {
+    try {
+      const id = existingId || doc(shiftsCollection).id;
+      const shiftRef = doc(shiftsCollection, id);
+      
+      const dataToSave = {
+        ...shiftData,
+        id,
+        createdAt: serverTimestamp(),
+      };
+      
+      await setDoc(shiftRef, dataToSave, { merge: true });
+
+      toast({
+        title: '¡Guardia guardada!',
+        description: 'La guardia se ha publicado correctamente.',
+      });
+      closeModal();
+    } catch (error) {
+      console.error("Error saving shift:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Error al guardar',
+        description: 'No se pudo guardar la guardia. Inténtalo de nuevo.',
+      });
+    }
   };
   
   const handleDeleteRequest = (shiftId: string) => {
     setShiftToDeleteId(shiftId);
     setIsDeleteDialogOpen(true);
-    // Cierra el modal de edición para que el de confirmación se vea bien.
     setIsModalOpen(false); 
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!shiftToDeleteId) return;
     
-    // Encontrar la fecha del turno para poder actualizar el estado
-    let shiftDate: string | null = null;
-    for (const date in shiftsByDate) {
-        if(shiftsByDate[date].find(s => s.id === shiftToDeleteId)) {
-            shiftDate = date;
-            break;
-        }
+    try {
+      const shiftRef = doc(shiftsCollection, shiftToDeleteId);
+      await deleteDoc(shiftRef);
+
+      toast({
+        title: 'Guardia eliminada',
+        description: 'La guardia ha sido eliminada permanentemente.',
+      });
+    } catch (error) {
+       console.error("Error deleting shift:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Error al eliminar',
+        description: 'No se pudo eliminar la guardia. Inténtalo de nuevo.',
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setShiftToDeleteId(null);
+      closeModal();
     }
-
-    if (!shiftDate) return;
-    
-    setShiftsByDate(prev => {
-      const dayShifts = prev[shiftDate!]?.filter(s => s.id !== shiftToDeleteId) || [];
-      const newShifts = {...prev};
-      if(dayShifts.length > 0) {
-        newShifts[shiftDate!] = dayShifts;
-      } else {
-        delete newShifts[shiftDate!];
-      }
-      return newShifts;
-    });
-
-    // Resetear
-    setIsDeleteDialogOpen(false);
-    setShiftToDeleteId(null);
-    closeModal();
   }
-
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -118,18 +148,18 @@ export default function CalendarView() {
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7; // 0=Lunes
+  const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7;
 
   const calendarDays = Array.from({ length: startDayIndex }, (_, i) => <div key={`empty-${i}`} className="p-1 border-transparent"></div>);
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(Date.UTC(currentYear, currentMonth, day));
     const dateString = date.toISOString().split('T')[0];
-    const dayOfWeek = date.getDay();
+    const dayOfWeek = date.getUTCDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const shifts = shiftsByDate[dateString] || [];
-    const hasShifts = shifts.length > 0;
-    const canAddShift = shifts.length < 2;
+    const dayShifts = shiftsByDate[dateString] || [];
+    const hasShifts = dayShifts.length > 0;
+    const canAddShift = dayShifts.length < 2;
 
     calendarDays.push(
       <div
@@ -151,7 +181,7 @@ export default function CalendarView() {
         
         {hasShifts && (
           <ShiftList 
-            shifts={shifts}
+            shifts={dayShifts}
             onView={handleOpenModalForEdit}
           />
         )}

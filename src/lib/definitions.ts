@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export type Shift = {
   id: string; // Unique ID for the shift
   date: string; // The date of the shift in YYYY-MM-DD format
@@ -6,4 +8,5 @@ export type Shift = {
   time: '20h a 8h' | '8h a 20h' | '9h a 17h' | '17h a 9h' | 'Otro'; // The time slot
   phone: string; // Contact phone number
   notes?: string; // Optional notes
+  createdAt: Timestamp; // Firestore timestamp
 };
