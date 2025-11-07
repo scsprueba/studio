@@ -10,6 +10,6 @@ static:
   - path: public
 
 # The environment variables that will be available to your app
-# env:
-#   - variable: API_KEY
-#     value: your_api_key_here
+env:
+  - variable: NEXT_PUBLIC_APP_PASSWORD
+    value: enfermeria00
