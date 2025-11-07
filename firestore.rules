@@ -2,9 +2,9 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Cualquiera puede leer los turnos.
-    // Cualquiera puede escribir, ya que el acceso a la app está protegido por clave.
-    match /shifts/{shiftId} {
+    // Permite que cualquiera pueda leer y escribir en cualquier colección.
+    // Esto es muy permisivo y solo debe usarse si no se maneja información sensible.
+    match /{document=**} {
       allow read, write: if true;
     }
   }
