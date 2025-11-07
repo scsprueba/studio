@@ -40,7 +40,7 @@ body {
 
     /* Custom variables */
     --weekend-card: 240 5% 15%;
-    --shift-item-background: 24 9.8% 15%;
+    --shift-item-background: 48 96% 20%;
   }
 
   .light {
@@ -76,7 +76,7 @@ body {
 
     /* Custom variables */
     --weekend-card: 210 40% 94%; /* Slightly darker blue for weekends */
-    --shift-item-background: 145 58% 90%; /* Soft Green for shifts */
+    --shift-item-background: 48 96% 85%;
   }
 }
 

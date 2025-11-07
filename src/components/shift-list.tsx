@@ -2,6 +2,7 @@
 
 import type { Shift } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
+import { Edit } from 'lucide-react';
 
 interface ShiftListProps {
   shifts: Shift[];
@@ -19,7 +20,8 @@ const summarizeTime = (time: Shift['time']) => {
 };
 
 const ShiftItem = ({ shift, onView }: { shift: Shift; onView: ShiftListProps['onView'] }) => (
-  <button onClick={() => onView(shift)} className="shift-item-compact w-full text-left hover:bg-primary/20 md:p-1.5 md:text-xs">
+  <button onClick={() => onView(shift)} className="shift-item-compact w-full text-left hover:bg-primary/20 flex justify-between items-center md:p-1.5 md:text-xs">
+    <div className="flex-grow">
       <div className="font-semibold text-card-foreground">
         <span>
           {shift.name} ({summarizeTime(shift.time)})
@@ -28,6 +30,8 @@ const ShiftItem = ({ shift, onView }: { shift: Shift; onView: ShiftListProps['on
       <div className="text-card-foreground/90 font-medium">
         <span>{summarizeLocation(shift.location)}</span>
       </div>
+    </div>
+    <Edit className="h-4 w-4 text-foreground/70 ml-2 flex-shrink-0" />
   </button>
 );
 
