@@ -44,9 +44,6 @@ interface FirebaseContextValue {
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
 function initializeFirebaseApp(config: FirebaseOptions): FirebaseApp {
-  if (!config.projectId) {
-    throw new Error('Missing Firebase config. Make sure to set up your .env file.');
-  }
   if (getApps().length === 0) {
     return initializeApp(config);
   } else {
@@ -58,6 +55,11 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const app = useMemo(() => {
+    // Check if essential Firebase config values are present
+    if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
+      setError('Missing Firebase config. Make sure to set up your .env file.');
+      return null;
+    }
     try {
       return initializeFirebaseApp(firebaseConfig);
     } catch (e: any) {
@@ -72,7 +74,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!db) {
-      if(app) setError("Firestore database could not be initialized.");
+      if(app && !error) setError("Firestore database could not be initialized.");
       setLoading(false);
       return;
     }
@@ -93,15 +95,15 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
         setShifts(shiftsFromDb);
         setLoading(false);
       },
-      (error) => {
-        console.error('Error fetching shifts:', error);
+      (err) => {
+        console.error('Error fetching shifts:', err);
         setError('Failed to fetch shifts. Check Firestore permissions and configuration.');
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [db, app]);
+  }, [db, app, error]);
 
   const value = useMemo(() => {
     return { app: app!, db: db!, shifts, loading };
@@ -144,7 +146,7 @@ export const useFirebase = () => {
 
 export const useShifts = () => {
   const context = useContext(FirebaseContext);
-  if (context === null) {
+  if (context === null) {_
     throw new Error('useShifts must be used within a FirebaseProvider');
   }
   return { shifts: context.shifts, loading: context.loading };
