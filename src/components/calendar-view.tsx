@@ -18,14 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  collection,
-  deleteDoc,
-  doc,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
-import { useFirestore, useCollection } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CalendarView() {
@@ -40,9 +32,9 @@ export default function CalendarView() {
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
   const [shiftToDeleteId, setShiftToDeleteId] = useState<string | null>(null);
 
-  const firestore = useFirestore();
-  const shiftsCollection = collection(firestore, 'shifts');
-  const { data: shifts = [], loading } = useCollection(shiftsCollection);
+  // Local state for shifts
+  const [shifts, setShifts] = useState<Shift[]>([]);
+
   const { toast } = useToast();
 
   const shiftsByDate = useMemo(() => {
@@ -81,18 +73,15 @@ export default function CalendarView() {
     setIsModalOpen(true);
   }
 
-  const handleSaveShift = async (shiftData: Omit<Shift, 'id' | 'createdAt'>, existingId?: string) => {
+  const handleSaveShift = async (shiftData: Omit<Shift, 'id'>, existingId?: string) => {
     try {
-      const id = existingId || doc(shiftsCollection).id;
-      const shiftRef = doc(shiftsCollection, id);
-      
-      const dataToSave = {
-        ...shiftData,
-        id,
-        createdAt: serverTimestamp(),
-      };
-      
-      await setDoc(shiftRef, dataToSave, { merge: true });
+      if (existingId) {
+        setShifts(prev => prev.map(s => s.id === existingId ? { ...s, ...shiftData, id: existingId } : s));
+      } else {
+        const newId = Date.now().toString();
+        const newShift: Shift = { ...shiftData, id: newId, createdAt: new Date() };
+        setShifts(prev => [...prev, newShift]);
+      }
 
       toast({
         title: '¡Guardia guardada!',
@@ -119,8 +108,7 @@ export default function CalendarView() {
     if (!shiftToDeleteId) return;
     
     try {
-      const shiftRef = doc(shiftsCollection, shiftToDeleteId);
-      await deleteDoc(shiftRef);
+      setShifts(prev => prev.filter(s => s.id !== shiftToDeleteId));
 
       toast({
         title: 'Guardia eliminada',
