@@ -5,16 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useShifts, useFirebase } from '@/app/client-provider';
-import { saveShiftText, deleteShiftText } from '@/lib/data';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import type { Shift } from '@/lib/definitions';
 
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [editingDate, setEditingDate] = useState<string | null>(null);
-  const { shifts } = useShifts();
-  const { db } = useFirebase();
+  // El estado de los turnos ahora es local
+  const [shifts, setShifts] = useState<Record<string, Shift>>({});
   const { toast } = useToast();
 
   const monthNames = [
@@ -33,25 +32,31 @@ export default function CalendarView() {
     setEditingDate(dateString);
   };
   
-  const handleSave = async (date: string, content: string) => {
-    try {
-      await saveShiftText(db, date, content);
-      toast({ title: 'Guardado', description: 'Los cambios se han guardado.', className: 'bg-green-100' });
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error al guardar', description: 'No se pudo guardar. Revisa los permisos de Firestore.', variant: 'destructive' });
+  const handleSave = (date: string, content: string) => {
+    if (content.trim() === '') {
+        handleDelete(date);
+        return;
     }
+
+    setShifts(prevShifts => ({
+        ...prevShifts,
+        [date]: {
+            id: date,
+            content: content,
+            updatedAt: new Date(),
+        }
+    }));
+    toast({ title: 'Guardado', description: 'Los cambios se han guardado localmente.' });
     setEditingDate(null);
   };
   
-  const handleDelete = async (date: string) => {
-     try {
-      await deleteShiftText(db, date);
-      toast({ title: 'Borrado', description: 'El turno ha sido borrado.' });
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error al borrar', description: 'No se pudo borrar el turno.', variant: 'destructive' });
-    }
+  const handleDelete = (date: string) => {
+    setShifts(prevShifts => {
+        const newShifts = { ...prevShifts };
+        delete newShifts[date];
+        return newShifts;
+    });
+    toast({ title: 'Borrado', description: 'El turno ha sido borrado.' });
     setEditingDate(null);
   }
 
