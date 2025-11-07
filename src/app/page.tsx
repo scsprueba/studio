@@ -1,33 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import CalendarView from '@/components/calendar-view';
-import { Button } from '@/components/ui/button';
 import { useShifts } from '@/app/client-provider';
 
 export default function Home() {
   const { loading: shiftsLoading } = useShifts();
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    // Este código solo se ejecuta en el navegador.
-    const accessGranted = sessionStorage.getItem('app-access-granted') === 'true';
-    if (!accessGranted) {
-      router.push('/login');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
-
-  const handleLogout = () => {
-    sessionStorage.removeItem('app-access-granted');
-    router.push('/login');
-  };
-
-  // Muestra un estado de carga mientras se verifica la autenticación o se cargan los turnos.
-  if (shiftsLoading || !isAuthenticated) {
+  if (shiftsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-2">
@@ -41,7 +20,6 @@ export default function Home() {
     );
   }
 
-  // Una vez autenticado y con los datos cargados, se muestra el contenido.
   return (
     <div className="p-4 md:p-6 pb-20 bg-background min-h-screen">
       <header className="flex justify-between items-center mb-6">
@@ -53,9 +31,6 @@ export default function Home() {
             Toca un día para ver o publicar una guardia.
           </p>
         </div>
-        <Button variant="outline" onClick={handleLogout}>
-          Salir
-        </Button>
       </header>
       <main className="max-w-4xl mx-auto">
         <CalendarView userId="shared-user" />
