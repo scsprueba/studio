@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Shift } from '@/lib/definitions';
 import ShiftModal from '@/components/shift-modal';
+import ShiftDetailsModal from '@/components/shift-details-modal';
 import ShiftList from '@/components/shift-list';
 
 export default function CalendarView() {
@@ -14,7 +15,10 @@ export default function CalendarView() {
   const [shiftsByDate, setShiftsByDate] = useState<Record<string, Shift[]>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
+  const [viewingShift, setViewingShift] = useState<Shift | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
@@ -29,6 +33,8 @@ export default function CalendarView() {
   const handleNextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
 
   const handleDayClick = (dateString: string) => {
+    const shiftsOnDay = shiftsByDate[dateString] || [];
+    if (shiftsOnDay.length >= 2) return;
     setSelectedDate(dateString);
     setIsModalOpen(true);
   };
@@ -37,6 +43,11 @@ export default function CalendarView() {
     setSelectedDate(dateString);
     setEditingShift(shift);
     setIsModalOpen(true);
+  }
+
+  const handleViewShift = (shift: Shift) => {
+    setViewingShift(shift);
+    setIsDetailsModalOpen(true);
   }
 
   const handleSaveShift = (shiftData: Omit<Shift, 'id'>) => {
@@ -77,6 +88,11 @@ export default function CalendarView() {
     setEditingShift(null);
   };
 
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setViewingShift(null);
+  }
+
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7; // 0=Lunes
@@ -90,6 +106,7 @@ export default function CalendarView() {
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const shifts = shiftsByDate[dateString] || [];
     const hasShifts = shifts.length > 0;
+    const canAddShift = shifts.length < 2;
 
     calendarDays.push(
       <div
@@ -104,7 +121,7 @@ export default function CalendarView() {
           <span className={cn('text-lg font-bold', hasShifts ? 'text-primary' : 'text-foreground/80')}>
             {day}
           </span>
-           <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100" onClick={() => handleDayClick(dateString)}>
+           <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleDayClick(dateString)} disabled={!canAddShift}>
               <PlusCircle className="h-5 w-5 text-primary"/>
            </Button>
         </div>
@@ -115,6 +132,7 @@ export default function CalendarView() {
             dateString={dateString}
             onEdit={handleEditShift}
             onDelete={handleDeleteShift}
+            onView={handleViewShift}
           />
         )}
       </div>
@@ -152,6 +170,13 @@ export default function CalendarView() {
            shift={editingShift}
            date={selectedDate}
          />
+      )}
+      {isDetailsModalOpen && viewingShift && (
+        <ShiftDetailsModal 
+          isOpen={isDetailsModalOpen}
+          onClose={closeDetailsModal}
+          shift={viewingShift}
+        />
       )}
     </>
   );

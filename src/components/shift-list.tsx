@@ -9,6 +9,7 @@ interface ShiftListProps {
   dateString: string;
   onEdit: (shift: Shift, dateString: string) => void;
   onDelete: (shiftId: string, dateString: string) => void;
+  onView: (shift: Shift) => void;
 }
 
 const summarizeLocation = (location: Shift['location']) => {
@@ -21,28 +22,30 @@ const summarizeTime = (time: Shift['time']) => {
   return time.replace(/h a /g, '-').replace(/h/g, '');
 };
 
-const ShiftItem = ({ shift, dateString, onEdit, onDelete }: { shift: Shift; dateString: string; onEdit: ShiftListProps['onEdit']; onDelete: ShiftListProps['onDelete'] }) => (
+const ShiftItem = ({ shift, dateString, onEdit, onDelete, onView }: { shift: Shift; dateString: string; onEdit: ShiftListProps['onEdit']; onDelete: ShiftListProps['onDelete']; onView: ShiftListProps['onView'] }) => (
   <div className="shift-item-compact group relative">
-    <div className="flex justify-between items-center font-semibold text-primary">
-      <span>
-        {shift.name} ({summarizeTime(shift.time)})
-      </span>
-      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute top-0 right-0">
-        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onEdit(shift, dateString)}>
-          <Pencil className="h-3 w-3 text-foreground/70" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onDelete(shift.id, dateString)}>
-          <Trash2 className="h-3 w-3 text-destructive" />
-        </Button>
+    <button onClick={() => onView(shift)} className="w-full text-left">
+      <div className="flex justify-between items-center font-semibold text-primary">
+        <span>
+          {shift.name} ({summarizeTime(shift.time)})
+        </span>
       </div>
-    </div>
-    <div className="flex justify-between items-center text-foreground/90 font-medium">
-      <span>{summarizeLocation(shift.location)}</span>
+      <div className="flex justify-between items-center text-foreground font-medium">
+        <span>{summarizeLocation(shift.location)}</span>
+      </div>
+    </button>
+    <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute top-0 right-0 bg-card/80 backdrop-blur-sm rounded">
+      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onEdit(shift, dateString)}>
+        <Pencil className="h-3 w-3 text-foreground/70" />
+      </Button>
+      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onDelete(shift.id, dateString)}>
+        <Trash2 className="h-3 w-3 text-destructive" />
+      </Button>
     </div>
   </div>
 );
 
-export default function ShiftList({ shifts, dateString, onEdit, onDelete }: ShiftListProps) {
+export default function ShiftList({ shifts, dateString, onEdit, onDelete, onView }: ShiftListProps) {
   const visibleShifts = shifts.slice(0, 2);
 
   return (
@@ -54,8 +57,11 @@ export default function ShiftList({ shifts, dateString, onEdit, onDelete }: Shif
           dateString={dateString}
           onEdit={onEdit}
           onDelete={onDelete}
+          onView={onView}
         />
       ))}
+      {/* Rellenar el espacio si solo hay una guardia para mantener la altura */}
+      {visibleShifts.length === 1 && <div className="shift-item-compact"></div>}
     </div>
   );
 }
