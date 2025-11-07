@@ -8,8 +8,8 @@ body {
 
 @layer base {
   :root {
-    --background: 222 84% 4.9%; /* Dark Slate Blue/Gray */
-    --foreground: 210 40% 98%; /* Off-white text */
+    --background: 0 0% 98%; /* Soft Off-white */
+    --foreground: 222 84% 4.9%; /* Charcoal black text */
     
     --card: 210 40% 96.1%; /* Soft pale blue */
     --card-foreground: 222 84% 4.9%; /* Charcoal black on cards */
