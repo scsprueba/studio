@@ -24,7 +24,7 @@ import {
 import { addShiftAction } from '@/lib/actions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -68,6 +68,7 @@ export default function ShiftPostForm({
   onFormSubmitSuccess,
 }: ShiftPostFormProps) {
   const { toast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const [state, formAction] = useActionState(addShiftAction, {
     message: '',
@@ -95,6 +96,7 @@ export default function ShiftPostForm({
       });
       onFormSubmitSuccess();
       form.reset();
+      formRef.current?.reset();
     } else if (state?.error) {
       toast({
         title: 'Error al publicar',
@@ -104,19 +106,15 @@ export default function ShiftPostForm({
     }
   }, [state, toast, onFormSubmitSuccess, form]);
 
-  const onSubmit = (values: ShiftFormValues) => {
-    formAction(values);
-  };
-
   return (
     <div>
       <h4 className="text-lg font-semibold text-primary mb-3">
         Publicar mi guardia para cambiar
       </h4>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <input type="hidden" {...form.register('userId')} />
-          <input type="hidden" {...form.register('date')} />
+        <form ref={formRef} action={formAction} className="space-y-4">
+          <input type="hidden" {...form.register('userId')} value={userId} />
+          <input type="hidden" {...form.register('date')} value={selectedDate} />
           <FormField
             control={form.control}
             name="name"
@@ -139,6 +137,7 @@ export default function ShiftPostForm({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  name={field.name}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -165,6 +164,7 @@ export default function ShiftPostForm({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  name={field.name}
                 >
                   <FormControl>
                     <SelectTrigger>
