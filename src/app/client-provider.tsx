@@ -24,15 +24,6 @@ import {
   type FirebaseOptions,
 } from 'firebase/app';
 
-// Read Firebase config from environment variables
-const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
 
 interface FirebaseContextValue {
   db: Firestore;
@@ -54,6 +45,15 @@ function initializeFirebaseApp(config: FirebaseOptions): FirebaseApp {
 export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
+  const firebaseConfig: FirebaseOptions = useMemo(() => ({
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  }), []);
+
   const app = useMemo(() => {
     // Check if essential Firebase config values are present
     if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
@@ -66,7 +66,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
       setError(e.message);
       return null;
     }
-  }, []);
+  }, [firebaseConfig]);
 
   const db = useMemo(() => (app ? getFirestore(app) : null), [app]);
   const [shifts, setShifts] = useState<Record<string, Shift>>({});
