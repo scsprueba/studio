@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface LoginScreenProps {
   onLoginSuccess: () => void;
@@ -15,6 +16,7 @@ interface LoginScreenProps {
 export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -54,15 +56,27 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="********"
-                required
-                className="text-center text-lg tracking-widest"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="********"
+                  required
+                  className="pr-10 text-center text-lg tracking-widest"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute inset-y-0 right-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                  <span className="sr-only">{showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}</span>
+                </Button>
+              </div>
             </div>
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
           </CardContent>
