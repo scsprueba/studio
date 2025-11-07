@@ -23,16 +23,13 @@ import { useToast } from '@/hooks/use-toast';
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   
-  // State for modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
-  // State for the currently selected/edited/deleted shift
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
   const [shiftToDeleteId, setShiftToDeleteId] = useState<string | null>(null);
 
-  // Local state for shifts
   const [shifts, setShifts] = useState<Shift[]>([]);
 
   const { toast } = useToast();
@@ -54,6 +51,7 @@ export default function CalendarView() {
     'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
   ];
   const dayNames = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const weekDayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
@@ -73,7 +71,7 @@ export default function CalendarView() {
     setIsModalOpen(true);
   }
 
-  const handleSaveShift = async (shiftData: Omit<Shift, 'id'>, existingId?: string) => {
+  const handleSaveShift = async (shiftData: Omit<Shift, 'id' | 'createdAt'>, existingId?: string) => {
     try {
       if (existingId) {
         setShifts(prev => prev.map(s => s.id === existingId ? { ...s, ...shiftData, id: existingId } : s));
@@ -138,9 +136,10 @@ export default function CalendarView() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7;
 
-  const calendarDays = Array.from({ length: startDayIndex }, (_, i) => <div key={`empty-${i}`} className="p-1 border-transparent"></div>);
+  const emptyDays = Array.from({ length: startDayIndex }, (_, i) => <div key={`empty-${i}`} className="hidden md:block p-1 border-transparent"></div>);
 
-  for (let day = 1; day <= daysInMonth; day++) {
+  const monthDays = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
     const date = new Date(Date.UTC(currentYear, currentMonth, day));
     const dateString = date.toISOString().split('T')[0];
     const dayOfWeek = date.getUTCDay();
@@ -149,20 +148,24 @@ export default function CalendarView() {
     const hasShifts = dayShifts.length > 0;
     const canAddShift = dayShifts.length < 2;
 
-    calendarDays.push(
+    return (
       <div
         key={day}
         className={cn(
-          'day-cell rounded-lg p-1.5 text-left flex flex-col justify-start transition-colors duration-150 relative group',
+          'day-cell rounded-lg p-2.5 flex flex-col transition-colors duration-150 relative group',
+          'md:p-1.5 md:text-left md:justify-start',
           isWeekend && 'weekend-cell',
           hasShifts && 'has-shifts'
         )}
       >
-        <div className="flex justify-between items-center">
-          <span className={cn('text-lg font-bold text-card-foreground')}>
-            {day}
-          </span>
-           <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleOpenModalForNew(dateString)} disabled={!canAddShift}>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-0">
+            <span className={cn('text-lg font-bold text-card-foreground')}>
+              {day}
+            </span>
+            <span className="text-sm font-medium text-card-foreground/70 md:hidden">{weekDayNames[dayOfWeek]}</span>
+          </div>
+           <Button variant="ghost" size="icon" className="h-8 w-8 md:h-7 md:w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleOpenModalForNew(dateString)} disabled={!canAddShift}>
               <PlusCircle className="h-5 w-5 text-yellow-400"/>
            </Button>
         </div>
@@ -175,7 +178,7 @@ export default function CalendarView() {
         )}
       </div>
     );
-  }
+  });
 
   return (
     <>
@@ -191,13 +194,16 @@ export default function CalendarView() {
             <ChevronRight className="w-6 h-6 text-foreground" />
           </Button>
         </div>
-        <div className="grid grid-cols-7 text-center font-semibold text-sm text-foreground/80 mb-2 px-2">
+        <div className="hidden md:grid grid-cols-7 text-center font-semibold text-sm text-foreground/80 mb-2 px-2">
           {dayNames.map((name, i) => (
             <span key={name} className={cn(i > 4 && 'text-red-500/80')}>{name}</span>
           ))}
         </div>
         <CardContent className="p-2">
-          <div className="grid grid-cols-7 gap-1.5">{calendarDays}</div>
+          <div className="flex flex-col md:grid md:grid-cols-7 gap-1.5">
+            {emptyDays}
+            {monthDays}
+          </div>
         </CardContent>
       </Card>
 

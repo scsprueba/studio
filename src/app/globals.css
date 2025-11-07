@@ -8,6 +8,42 @@ body {
 
 @layer base {
   :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    --card: 240 10% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 48 96% 51%;
+    --primary-foreground: 35 93% 5%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 48 96% 51%;
+
+    --radius: 0.5rem;
+
+    /* Custom variables */
+    --weekend-card: 240 5% 15%;
+    --shift-item-background: 24 9.8% 15%;
+  }
+
+  .light {
     --background: 0 0% 98%; /* Soft Off-white */
     --foreground: 222 84% 4.9%; /* Charcoal black text */
     
@@ -42,31 +78,6 @@ body {
     --weekend-card: 210 40% 94%; /* Slightly darker blue for weekends */
     --shift-item-background: 145 58% 90%; /* Soft Green for shifts */
   }
-
-  .dark {
-    --background: 222 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 216 34% 17%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 172 63% 42%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    
-    --weekend-card: 216 34% 22%;
-    --shift-item-background: 145 63% 42%;
-  }
 }
 
 @layer base {
@@ -81,7 +92,8 @@ body {
 
 @layer utilities {
   .day-cell {
-    @apply min-h-[120px] transition-transform duration-100 ease-in-out bg-card border border-primary/20;
+    @apply transition-transform duration-100 ease-in-out bg-card border border-primary/20;
+    @apply md:min-h-[120px]; /* min height only for desktop grid */
   }
   .day-cell:hover {
     @apply scale-[1.02] shadow-lg ring-2 ring-primary/50;
