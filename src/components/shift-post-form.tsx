@@ -25,7 +25,6 @@ import { addShiftAction } from '@/lib/actions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useActionState, useEffect, useRef } from 'react';
-import type { NewShiftData } from '@/lib/definitions';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -97,7 +96,7 @@ export default function ShiftPostForm({
       });
       onFormSubmitSuccess();
       form.reset();
-      // We don't need formRef.current?.reset() as react-hook-form handles it
+      formRef.current?.reset();
     } else if (state?.error) {
       toast({
         title: 'Error al publicar',
@@ -107,11 +106,6 @@ export default function ShiftPostForm({
     }
   }, [state, toast, onFormSubmitSuccess, form]);
   
-  // Wrapper function to pass validated data to the server action
-  const handleFormSubmit = (data: ShiftFormValues) => {
-    formAction(data);
-  };
-
   return (
     <div>
       <h4 className="text-lg font-semibold text-primary mb-3">
@@ -121,7 +115,6 @@ export default function ShiftPostForm({
         <form
           ref={formRef}
           action={formAction}
-          onSubmit={form.handleSubmit(handleFormSubmit)}
           className="space-y-4"
         >
           <FormField
@@ -217,6 +210,10 @@ export default function ShiftPostForm({
               </FormItem>
             )}
           />
+          {/* Estos campos ocultos son necesarios para la acción del servidor */}
+          <input type="hidden" {...form.register('date')} />
+          <input type="hidden" {...form.register('userId')} />
+
           <SubmitButton />
         </form>
       </Form>

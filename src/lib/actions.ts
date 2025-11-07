@@ -25,12 +25,14 @@ const AddShiftSchema = FormSchema;
 
 export async function addShiftAction(
   prevState: { message: string; error?: string },
-  data: NewShiftData
+  formData: FormData
 ): Promise<{ message: string; error?: string }> {
   try {
-    const validatedFields = AddShiftSchema.safeParse(data);
+    const rawData = Object.fromEntries(formData.entries());
+    const validatedFields = AddShiftSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
+      console.error('Validation errors:', validatedFields.error.flatten().fieldErrors);
       return {
         message: '',
         error: 'Error de validación. Por favor, revisa los campos.',
