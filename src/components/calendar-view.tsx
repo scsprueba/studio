@@ -7,18 +7,26 @@ import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Shift } from '@/lib/definitions';
 import ShiftModal from '@/components/shift-modal';
-import ShiftDetailsModal from '@/components/shift-details-modal';
 import ShiftList from '@/components/shift-list';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [shiftsByDate, setShiftsByDate] = useState<Record<string, Shift[]>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
-  const [viewingShift, setViewingShift] = useState<Shift | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [shiftToDeleteId, setShiftToDeleteId] = useState<string | null>(null);
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
@@ -32,35 +40,27 @@ export default function CalendarView() {
   const handlePrevMonth = () => setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
   const handleNextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
 
-  const handleDayClick = (dateString: string) => {
+  const handleOpenModalForNew = (dateString: string) => {
     setSelectedDate(dateString);
+    setEditingShift(null);
     setIsModalOpen(true);
   };
   
-  const handleEditShift = (shift: Shift) => {
-    closeDetailsModal();
-    // We need a slight delay to allow the first modal to close
-    setTimeout(() => {
-      setSelectedDate(shift.date);
-      setEditingShift(shift);
-      setIsModalOpen(true);
-    }, 100);
+  const handleOpenModalForEdit = (shift: Shift) => {
+    setSelectedDate(shift.date);
+    setEditingShift(shift);
+    setIsModalOpen(true);
   }
 
-  const handleViewShift = (shift: Shift) => {
-    setViewingShift(shift);
-    setIsDetailsModalOpen(true);
-  }
-
-  const handleSaveShift = (shiftData: Omit<Shift, 'id'>) => {
-    const date = selectedDate!;
+  const handleSaveShift = (shiftData: Omit<Shift, 'id'>, existingId?: string) => {
+    const date = shiftData.date;
     setShiftsByDate(prev => {
       const dayShifts = prev[date] ? [...prev[date]] : [];
-      if(editingShift) {
+      if(existingId) {
         // Update existing shift
-        const index = dayShifts.findIndex(s => s.id === editingShift.id);
+        const index = dayShifts.findIndex(s => s.id === existingId);
         if (index > -1) {
-          dayShifts[index] = { ...shiftData, id: editingShift.id };
+          dayShifts[index] = { ...shiftData, id: existingId };
         }
       } else {
         // Add new shift
@@ -71,34 +71,50 @@ export default function CalendarView() {
     closeModal();
   };
   
-  const handleDeleteShift = (shiftId: string) => {
-    const shiftToDelete = viewingShift;
-    if (!shiftToDelete) return;
+  const handleDeleteRequest = (shiftId: string) => {
+    setShiftToDeleteId(shiftId);
+    setIsDeleteDialogOpen(true);
+    // Cierra el modal de edición para que el de confirmación se vea bien.
+    setIsModalOpen(false); 
+  };
+
+  const confirmDelete = () => {
+    if (!shiftToDeleteId) return;
+    
+    // Encontrar la fecha del turno para poder actualizar el estado
+    let shiftDate: string | null = null;
+    for (const date in shiftsByDate) {
+        if(shiftsByDate[date].find(s => s.id === shiftToDeleteId)) {
+            shiftDate = date;
+            break;
+        }
+    }
+
+    if (!shiftDate) return;
     
     setShiftsByDate(prev => {
-      const dateString = shiftToDelete.date;
-      const dayShifts = prev[dateString]?.filter(s => s.id !== shiftId) || [];
+      const dayShifts = prev[shiftDate!]?.filter(s => s.id !== shiftToDeleteId) || [];
       const newShifts = {...prev};
       if(dayShifts.length > 0) {
-        newShifts[dateString] = dayShifts;
+        newShifts[shiftDate!] = dayShifts;
       } else {
-        delete newShifts[dateString];
+        delete newShifts[shiftDate!];
       }
       return newShifts;
     });
-    closeDetailsModal();
-  };
+
+    // Resetear
+    setIsDeleteDialogOpen(false);
+    setShiftToDeleteId(null);
+    closeModal();
+  }
+
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedDate(null);
     setEditingShift(null);
   };
-
-  const closeDetailsModal = () => {
-    setIsDetailsModalOpen(false);
-    setViewingShift(null);
-  }
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -128,7 +144,7 @@ export default function CalendarView() {
           <span className={cn('text-lg font-bold', hasShifts ? 'text-primary' : 'text-foreground/80')}>
             {day}
           </span>
-           <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleDayClick(dateString)} disabled={!canAddShift}>
+           <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleOpenModalForNew(dateString)} disabled={!canAddShift}>
               <PlusCircle className="h-5 w-5 text-primary"/>
            </Button>
         </div>
@@ -136,7 +152,7 @@ export default function CalendarView() {
         {hasShifts && (
           <ShiftList 
             shifts={shifts}
-            onView={handleViewShift}
+            onView={handleOpenModalForEdit}
           />
         )}
       </div>
@@ -166,24 +182,32 @@ export default function CalendarView() {
           <div className="grid grid-cols-7 gap-1.5">{calendarDays}</div>
         </CardContent>
       </Card>
-      {isModalOpen && selectedDate && (
+
+      {isModalOpen && (
          <ShiftModal
            isOpen={isModalOpen}
            onClose={closeModal}
            onSave={handleSaveShift}
+           onDelete={handleDeleteRequest}
            shift={editingShift}
            date={selectedDate}
          />
       )}
-      {isDetailsModalOpen && viewingShift && (
-        <ShiftDetailsModal 
-          isOpen={isDetailsModalOpen}
-          onClose={closeDetailsModal}
-          shift={viewingShift}
-          onEdit={handleEditShift}
-          onDelete={handleDeleteShift}
-        />
-      )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. La guardia se eliminará permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShiftToDeleteId(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Continuar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import type { Shift } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,18 +22,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Trash2 } from 'lucide-react';
 
 interface ShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Shift, 'id'>) => void;
+  onSave: (data: Omit<Shift, 'id'>, existingId?: string) => void;
+  onDelete: (shiftId: string) => void;
   shift: Shift | null;
-  date: string;
+  date: string | null;
 }
 
 type FormData = Omit<Shift, 'id' | 'date'>;
 
-export default function ShiftModal({ isOpen, onClose, onSave, shift, date }: ShiftModalProps) {
+export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, date }: ShiftModalProps) {
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<FormData>();
   
   useEffect(() => {
@@ -48,27 +50,30 @@ export default function ShiftModal({ isOpen, onClose, onSave, shift, date }: Shi
         notes: '',
       });
     }
-  }, [shift, reset]);
+  }, [shift, reset, isOpen]);
 
   const onSubmit = (data: FormData) => {
-    onSave({ ...data, date });
+    const finalDate = shift?.date || date;
+    if (!finalDate) return; // Should not happen
+    onSave({ ...data, date: finalDate }, shift?.id);
   };
 
-  const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('es-ES', {
+  const effectiveDate = shift?.date || date;
+  const formattedDate = effectiveDate ? new Date(effectiveDate + 'T00:00:00').toLocaleDateString('es-ES', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  });
+  }) : '';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{shift ? 'Editar Guardia' : 'Publicar Guardia'}</DialogTitle>
+            <DialogTitle>{shift ? 'Detalles de la Guardia' : 'Publicar Guardia'}</DialogTitle>
             <DialogDescription>
-              Para el día {formattedDate}. Rellena los detalles de la guardia.
+              {shift ? `Editando guardia para el ${formattedDate}.` : `Para el día ${formattedDate}. Rellena los detalles.`}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -89,7 +94,7 @@ export default function ShiftModal({ isOpen, onClose, onSave, shift, date }: Shi
                 name="location"
                 rules={{ required: "Debes seleccionar un lugar" }}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Selecciona un centro" />
                     </SelectTrigger>
@@ -110,7 +115,7 @@ export default function ShiftModal({ isOpen, onClose, onSave, shift, date }: Shi
                  name="time"
                  rules={{ required: "Debes seleccionar un horario" }}
                  render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Selecciona un turno" />
                     </SelectTrigger>
@@ -126,20 +131,30 @@ export default function ShiftModal({ isOpen, onClose, onSave, shift, date }: Shi
                 />
                {errors.time && <p className="col-span-4 text-xs text-destructive text-right">{errors.time.message}</p>}
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="notes" className="text-right">Notas</Label>
-              <Textarea id="notes" {...register('notes')} className="col-span-3" placeholder="Información adicional (opcional)" />
+             <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="notes" className="text-right pt-2">Notas</Label>
+              <Textarea
+                id="notes"
+                {...register('notes')}
+                className="col-span-3"
+                placeholder="Información adicional (opcional)"
+              />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit">Guardar Guardia</Button>
+          <DialogFooter className="sm:justify-between">
+            {shift ? (
+               <Button type="button" variant="destructive" onClick={() => onDelete(shift.id)} className="mr-auto">
+                 <Trash2 className="w-4 h-4 mr-2" />
+                 Eliminar
+               </Button>
+            ) : <div className="mr-auto"></div>}
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+              <Button type="submit">Guardar</Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
-
-// Hook de control para el Select de ShadCN
-import { Controller } from 'react-hook-form';
