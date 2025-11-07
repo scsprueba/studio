@@ -2,24 +2,10 @@
 
 import type { Shift } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { deleteShift } from '@/lib/data';
-import {
-  Phone,
-  CheckCircle,
-  Clock,
-  MapPin,
-  FileText,
-  Star,
-  Trash2,
-} from 'lucide-react';
+import { Phone, CheckCircle, Clock, MapPin, FileText, Trash2, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -34,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 interface ShiftListProps {
   shifts: Shift[];
@@ -42,11 +28,7 @@ interface ShiftListProps {
   onActionSuccess: () => void;
 }
 
-export default function ShiftList({
-  shifts,
-  userId,
-  onActionSuccess,
-}: ShiftListProps) {
+export default function ShiftList({ shifts, userId, onActionSuccess }: ShiftListProps) {
   const { toast } = useToast();
   const { db } = useFirebase();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -57,7 +39,9 @@ export default function ShiftList({
       await deleteShift(db, shiftId);
       toast({
         title: 'Guardia Eliminada',
-        description: 'La guardia ha sido marcada como cambiada y eliminada.',
+        description: 'La guardia ha sido eliminada del calendario.',
+        variant: 'default',
+        className: 'bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700'
       });
       onActionSuccess();
     } catch (error) {
@@ -83,41 +67,19 @@ export default function ShiftList({
         const whatsappNumber = shift.phone.replace(/[^0-9]/g, '');
 
         return (
-          <Card
-            key={shift.id}
-            className={cn(
-              'transition-all',
-              isOwner &&
-                'ring-2 ring-primary border-primary bg-primary/5 dark:bg-primary/10'
-            )}
-          >
-            <CardHeader className="p-4">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg font-bold flex items-center gap-2 text-foreground/90">
-                  <MapPin className="w-4 h-4 text-primary" />{' '}
-                  <span className={cn(isOwner && 'text-primary font-semibold')}>
-                    {shift.location} ({shift.name})
-                  </span>
-                </CardTitle>
-                {isOwner && (
-                  <Badge
-                    variant="default"
-                    className="flex items-center gap-1.5"
-                  >
-                    <Star className="w-3.5 h-3.5" />
-                    Mi Guardia
-                  </Badge>
-                )}
-              </div>
+          <Card key={shift.id} className={cn('transition-all', isOwner && 'ring-2 ring-primary border-primary bg-primary/5')}>
+            <CardHeader className="p-4 flex flex-row justify-between items-start">
+              <CardTitle className="text-lg font-bold flex items-center gap-2 text-foreground/90">
+                <User className="w-4 h-4 text-primary" /> {shift.name}
+              </CardTitle>
+              {isOwner && <Badge>Mi Guardia</Badge>}
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-foreground/80 font-medium">
-                <Clock className="w-4 h-4 text-primary/80" />
-                <span>{shift.time}</span>
+                <MapPin className="w-4 h-4 text-primary/80" /> <span>{shift.location}</span>
               </div>
               <div className="flex items-center gap-2 text-foreground/80 font-medium">
-                <Phone className="w-4 h-4 text-primary/80" />
-                <span>{shift.phone}</span>
+                <Clock className="w-4 h-4 text-primary/80" /> <span>{shift.time}</span>
               </div>
               {shift.notes && (
                 <div className="flex items-start gap-2 text-foreground/70 pt-2">
@@ -126,49 +88,33 @@ export default function ShiftList({
                 </div>
               )}
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 pt-0 flex flex-col items-stretch">
               {isOwner ? (
-                 <AlertDialog>
+                <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full mt-2 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-600 dark:text-green-500 dark:hover:bg-green-950"
-                      disabled={isDeleting === shift.id}
-                    >
-                      {isDeleting === shift.id ? (
-                        'Marcando...'
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Marcar como Cambiada
-                        </>
-                      )}
+                    <Button variant="outline" className="w-full" disabled={isDeleting === shift.id}>
+                      {isDeleting === shift.id ? 'Eliminando...' : <><Trash2 className="w-4 h-4 mr-2" /> Eliminar mi guardia</>}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>¿Confirmar cambio?</AlertDialogTitle>
+                      <AlertDialogTitle>¿Eliminar esta guardia?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esto eliminará permanentemente la guardia del calendario. Esta acción no se puede deshacer.
+                        Esta acción no se puede deshacer. Tu publicación se eliminará permanentemente.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(shift.id!)}>
+                      <AlertDialogAction onClick={() => handleDelete(shift.id!)} className="bg-destructive hover:bg-destructive/90">
                         Sí, eliminar
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <Button asChild className="w-full whatsapp-btn hover:bg-[#20b757]">
-                  <a
-                    href={`https://wa.me/34${whatsappNumber}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Phone className="w-4 h-4 mr-2" />
-                    Contactar por WhatsApp
+                <Button asChild className="w-full whatsapp-btn">
+                  <a href={`https://wa.me/34${whatsappNumber}`} target="_blank" rel="noopener noreferrer">
+                    <Phone className="w-4 h-4 mr-2" /> Contactar por WhatsApp
                   </a>
                 </Button>
               )}

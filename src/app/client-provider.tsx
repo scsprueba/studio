@@ -25,7 +25,6 @@ import {
   type FirebaseOptions,
 } from 'firebase/app';
 
-// Esta configuración es pública y segura.
 const firebaseConfig: FirebaseOptions = {
   apiKey: 'AIzaSyCCozUn2lAcvVM6VUmSFlnkLnLdP1jJVnU',
   authDomain: 'studio-6792195927-50f25.firebaseapp.com',
@@ -44,28 +43,33 @@ interface FirebaseContextValue {
 
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
-let firebaseApp: FirebaseApp;
-if (getApps().length === 0) {
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApp();
+function initializeFirebaseApp(config: FirebaseOptions): FirebaseApp {
+  if (getApps().length === 0) {
+    return initializeApp(config);
+  } else {
+    return getApp();
+  }
 }
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-  const [db] = useState<Firestore>(getFirestore(firebaseApp));
+  const app = useMemo(() => initializeFirebaseApp(firebaseConfig), []);
+  const db = useMemo(() => getFirestore(app), [app]);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'shifts'), orderBy('createdAt', 'asc'));
+    const q = query(collection(db, 'shifts'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
-        const shiftsFromDb = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt.toDate(),
-        })) as Shift[];
+        const shiftsFromDb = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+          } as Shift;
+        });
         setShifts(shiftsFromDb);
         setLoading(false);
       },
@@ -79,8 +83,8 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   }, [db]);
 
   const value = useMemo(() => {
-    return { app: firebaseApp, db, shifts, loading };
-  }, [db, shifts, loading]);
+    return { app, db, shifts, loading };
+  }, [app, db, shifts, loading]);
 
   return (
     <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>
@@ -89,7 +93,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
 export const useFirebase = () => {
   const context = useContext(FirebaseContext);
-if (context === null) {
+  if (context === null) {
     throw new Error('useFirebase must be used within a FirebaseProvider');
   }
   return context;

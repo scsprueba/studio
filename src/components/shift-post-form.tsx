@@ -25,9 +25,10 @@ import { addShift, canPublishShift } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useFirebase } from '@/app/client-provider';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'El nombre es requerido.' }),
+  name: z.string().min(2, { message: 'El nombre es requerido.' }).max(30, { message: 'El nombre es demasiado largo.' }),
   location: z.enum(['C.S. Granadilla', 'SNU San Isidro'], {
     required_error: 'Debes seleccionar un lugar.',
   }),
@@ -36,7 +37,7 @@ const formSchema = z.object({
   }),
   phone: z
     .string()
-    .regex(/^[6-9]\d{8}$/, { message: 'Número de teléfono español no válido.' }),
+    .regex(/^[6-9]\d{8}$/, { message: 'Introduce un número de teléfono español válido (9 dígitos).' }),
   notes: z
     .string()
     .max(200, { message: 'Las notas no pueden exceder los 200 caracteres.' })
@@ -94,6 +95,7 @@ export default function ShiftPostForm({
       toast({
         title: '¡Guardia Publicada!',
         description: 'Tu guardia ha sido publicada correctamente.',
+        className: 'bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700'
       });
       onFormSubmitSuccess();
       form.reset();
@@ -111,22 +113,19 @@ export default function ShiftPostForm({
 
   return (
     <div>
-      <h4 className="text-lg font-semibold text-primary mb-3">
-        Publicar mi guardia para cambiar
+      <h4 className="text-lg font-semibold text-primary mb-4">
+        Publicar mi guardia
       </h4>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mi Nombre (Visible)</FormLabel>
+                <FormLabel>Mi Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="Tu nombre" {...field} />
+                  <Input placeholder="Tu nombre (será visible)" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -138,20 +137,12 @@ export default function ShiftPostForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Lugar de la Guardia</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  name={field.name}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value} name={field.name}>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona el lugar" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Selecciona el lugar" /></SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="C.S. Granadilla">
-                      C.S. Granadilla
-                    </SelectItem>
+                    <SelectItem value="C.S. Granadilla">C.S. Granadilla</SelectItem>
                     <SelectItem value="SNU San Isidro">SNU San Isidro</SelectItem>
                   </SelectContent>
                 </Select>
@@ -165,15 +156,9 @@ export default function ShiftPostForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Horario</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  name={field.name}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value} name={field.name}>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona el horario" />
-                    </Trigger>
+                    <SelectTrigger><SelectValue placeholder="Selecciona el horario" /></SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="20h a 8h">20h a 8h</SelectItem>
@@ -191,7 +176,7 @@ export default function ShiftPostForm({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Teléfono (WhatsApp)</FormLabel>
+                <FormLabel>Teléfono (para WhatsApp)</FormLabel>
                 <FormControl>
                   <Input type="tel" placeholder="Ej: 612345678" {...field} />
                 </FormControl>
@@ -204,7 +189,7 @@ export default function ShiftPostForm({
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Notas para el Cambio (Opcional)</FormLabel>
+                <FormLabel>Notas (Opcional)</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Ej: Busco cambio por otro día, etc." {...field} />
                 </FormControl>
@@ -214,7 +199,7 @@ export default function ShiftPostForm({
           />
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Publicando...' : 'Publicar Guardia para Cambio'}
+            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Publicando...</> : 'Publicar Guardia'}
           </Button>
         </form>
       </Form>
