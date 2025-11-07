@@ -84,7 +84,18 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">Teléfono</Label>
-              <Input id="phone" {...register('phone', { required: 'El teléfono es obligatorio' })} className="col-span-3" placeholder="Para WhatsApp" />
+              <Input 
+                id="phone"
+                type="tel"
+                {...register('phone', { 
+                  required: 'El teléfono es obligatorio',
+                  pattern: {
+                    value: /^[679]\d{8}$/,
+                    message: 'Introduce un número de móvil válido (9 dígitos).'
+                  }
+                })} 
+                className="col-span-3" 
+              />
                {errors.phone && <p className="col-span-4 text-xs text-destructive text-right">{errors.phone.message}</p>}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
