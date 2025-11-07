@@ -21,10 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { addShiftAction } from '@/lib/actions';
-import { useFormStatus } from 'react-dom';
+import { addShift, canPublishShift } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { useActionState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre es requerido.' }),
@@ -53,27 +52,13 @@ interface ShiftPostFormProps {
   onFormSubmitSuccess: () => void;
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Publicando...' : 'Publicar Guardia para Cambio'}
-    </Button>
-  );
-}
-
 export default function ShiftPostForm({
   selectedDate,
   userId,
   onFormSubmitSuccess,
 }: ShiftPostFormProps) {
   const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const [state, formAction] = useActionState(addShiftAction, {
-    message: '',
-    error: undefined,
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ShiftFormValues>({
     resolver: zodResolver(formSchema),
@@ -88,24 +73,40 @@ export default function ShiftPostForm({
     },
   });
 
-  useEffect(() => {
-    if (state?.message && !state.error) {
+  async function onSubmit(values: ShiftFormValues) {
+    setIsSubmitting(true);
+    try {
+      const canPublishResult = await canPublishShift(values.date, values.userId);
+      if (!canPublishResult.allowed) {
+        toast({
+          title: 'No se puede publicar',
+          description: canPublishResult.reason,
+          variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
+      await addShift(values);
+
       toast({
         title: '¡Guardia Publicada!',
-        description: state.message,
+        description: 'Tu guardia ha sido publicada correctamente.',
       });
       onFormSubmitSuccess();
       form.reset();
-      formRef.current?.reset();
-    } else if (state?.error) {
+    } catch (error) {
+      console.error('Error al publicar la guardia:', error);
       toast({
         title: 'Error al publicar',
-        description: state.error,
+        description: 'Ha ocurrido un error al intentar publicar la guardia.',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [state, toast, onFormSubmitSuccess, form]);
-  
+  }
+
   return (
     <div>
       <h4 className="text-lg font-semibold text-primary mb-3">
@@ -113,8 +114,7 @@ export default function ShiftPostForm({
       </h4>
       <Form {...form}>
         <form
-          ref={formRef}
-          action={formAction}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4"
         >
           <FormField
@@ -210,11 +210,10 @@ export default function ShiftPostForm({
               </FormItem>
             )}
           />
-          {/* Estos campos ocultos son necesarios para la acción del servidor */}
-          <input type="hidden" {...form.register('date')} />
-          <input type="hidden" {...form.register('userId')} />
 
-          <SubmitButton />
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Publicando...' : 'Publicar Guardia para Cambio'}
+          </Button>
         </form>
       </Form>
     </div>
