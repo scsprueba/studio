@@ -24,13 +24,14 @@ import {
   type FirebaseOptions,
 } from 'firebase/app';
 
+// Read Firebase config from environment variables
 const firebaseConfig: FirebaseOptions = {
-  apiKey: 'AIzaSyCCozUn2lAcvVM6VUmSFlnkLnLdP1jJVnU',
-  authDomain: 'studio-6792195927-50f25.firebaseapp.com',
-  projectId: 'studio-6792195927-50f25',
-  storageBucket: 'studio-6792195927-50f25.appspot.com',
-  messagingSenderId: '835504863875',
-  appId: '1:835504863875:web:240adbdea3fa388b57b9b6',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 interface FirebaseContextValue {
@@ -43,6 +44,9 @@ interface FirebaseContextValue {
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
 function initializeFirebaseApp(config: FirebaseOptions): FirebaseApp {
+  if (!config.projectId) {
+    throw new Error('Missing Firebase config. Make sure to set up your .env file.');
+  }
   if (getApps().length === 0) {
     return initializeApp(config);
   } else {
@@ -51,12 +55,28 @@ function initializeFirebaseApp(config: FirebaseOptions): FirebaseApp {
 }
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-  const app = useMemo(() => initializeFirebaseApp(firebaseConfig), []);
-  const db = useMemo(() => getFirestore(app), [app]);
+  const [error, setError] = useState<string | null>(null);
+
+  const app = useMemo(() => {
+    try {
+      return initializeFirebaseApp(firebaseConfig);
+    } catch (e: any) {
+      setError(e.message);
+      return null;
+    }
+  }, []);
+
+  const db = useMemo(() => (app ? getFirestore(app) : null), [app]);
   const [shifts, setShifts] = useState<Record<string, Shift>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      if(app) setError("Firestore database could not be initialized.");
+      setLoading(false);
+      return;
+    }
+    setError(null);
     const q = query(collection(db, 'shifts'));
     const unsubscribe = onSnapshot(
       q,
@@ -75,16 +95,39 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
       },
       (error) => {
         console.error('Error fetching shifts:', error);
+        setError('Failed to fetch shifts. Check Firestore permissions and configuration.');
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [db]);
+  }, [db, app]);
 
   const value = useMemo(() => {
-    return { app, db, shifts, loading };
+    return { app: app!, db: db!, shifts, loading };
   }, [app, db, shifts, loading]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="p-4 bg-destructive/10 text-destructive border border-destructive rounded-md max-w-md text-center">
+          <h2 className="font-bold">Error de Configuración de Firebase</h2>
+          <p className="text-sm mt-2">{error}</p>
+          <p className="text-xs mt-4">
+            Por favor, asegúrate de haber creado un archivo <code>.env</code> en la raíz del proyecto y haber añadido las credenciales de tu proyecto de Firebase.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!app || !db) {
+    return (
+       <div className="flex items-center justify-center min-h-screen">
+         <p>Initializing Firebase...</p>
+       </div>
+    );
+  }
 
   return (
     <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>
