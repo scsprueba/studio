@@ -3,7 +3,6 @@
 import type { Shift } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Trash2, Pencil } from 'lucide-react';
-import { Card, CardContent } from './ui/card';
 
 interface ShiftListProps {
   shifts: Shift[];
@@ -22,36 +21,39 @@ const summarizeTime = (time: Shift['time']) => {
   return time.replace(/h a /g, '-').replace(/h/g, '');
 };
 
-export default function ShiftList({ shifts, dateString, onEdit, onDelete }: ShiftListProps) {
-  return (
-    <div className="mt-1 space-y-1 pr-1">
-      {shifts.map((shift) => (
-        <Card key={shift.id} className="bg-card/80 p-0 shadow-sm hover:shadow-md transition-shadow duration-150 group/item text-xs">
-          <CardContent className="p-1.5">
-            <div className="flex justify-between items-start">
-              <p className="font-semibold text-primary">{shift.name}</p>
-              <div className="flex items-center opacity-0 group-hover/item:opacity-100 transition-opacity -mr-1 -mt-1">
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onEdit(shift, dateString)}>
-                  <Pencil className="h-3.5 w-3.5 text-foreground/70" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onDelete(shift.id, dateString)}>
-                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center text-foreground/90 font-medium">
-              <span>{summarizeLocation(shift.location)}</span>
-              <span>{summarizeTime(shift.time)}</span>
-            </div>
+const ShiftItem = ({ shift, dateString, onEdit, onDelete }: { shift: Shift; dateString: string; onEdit: ShiftListProps['onEdit']; onDelete: ShiftListProps['onDelete'] }) => (
+  <div className="shift-item-compact group relative">
+    <div className="flex justify-between items-center font-semibold text-primary">
+      <span>{shift.name}</span>
+      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute top-0 right-0">
+        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onEdit(shift, dateString)}>
+          <Pencil className="h-3 w-3 text-foreground/70" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onDelete(shift.id, dateString)}>
+          <Trash2 className="h-3 w-3 text-destructive" />
+        </Button>
+      </div>
+    </div>
+    <div className="flex justify-between items-center text-foreground/90 font-medium">
+      <span>{summarizeLocation(shift.location)}</span>
+      <span>{summarizeTime(shift.time)}</span>
+    </div>
+  </div>
+);
 
-            {shift.notes && (
-              <p className="text-foreground/80 mt-1 pt-1 border-t border-dashed text-[11px]">
-                {shift.notes}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+export default function ShiftList({ shifts, dateString, onEdit, onDelete }: ShiftListProps) {
+  const visibleShifts = shifts.slice(0, 2);
+
+  return (
+    <div className="grid grid-rows-2 gap-0 mt-1">
+      {visibleShifts.map((shift) => (
+        <ShiftItem
+          key={shift.id}
+          shift={shift}
+          dateString={dateString}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

@@ -108,4 +108,7 @@ body {
   .whatsapp-btn {
     @apply bg-[#25d366] text-white hover:bg-[#20b757];
   }
+  .shift-item-compact {
+    @apply p-1.5 border-t border-primary/10 text-xs leading-tight;
+  }
 }
