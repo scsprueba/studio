@@ -33,16 +33,18 @@ export default function CalendarView() {
   const handleNextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
 
   const handleDayClick = (dateString: string) => {
-    const shiftsOnDay = shiftsByDate[dateString] || [];
-    if (shiftsOnDay.length >= 2) return;
     setSelectedDate(dateString);
     setIsModalOpen(true);
   };
   
-  const handleEditShift = (shift: Shift, dateString: string) => {
-    setSelectedDate(dateString);
-    setEditingShift(shift);
-    setIsModalOpen(true);
+  const handleEditShift = (shift: Shift) => {
+    closeDetailsModal();
+    // We need a slight delay to allow the first modal to close
+    setTimeout(() => {
+      setSelectedDate(shift.date);
+      setEditingShift(shift);
+      setIsModalOpen(true);
+    }, 100);
   }
 
   const handleViewShift = (shift: Shift) => {
@@ -69,9 +71,13 @@ export default function CalendarView() {
     closeModal();
   };
   
-  const handleDeleteShift = (shiftId: string, dateString: string) => {
+  const handleDeleteShift = (shiftId: string) => {
+    const shiftToDelete = viewingShift;
+    if (!shiftToDelete) return;
+    
     setShiftsByDate(prev => {
-      const dayShifts = prev[dateString].filter(s => s.id !== shiftId);
+      const dateString = shiftToDelete.date;
+      const dayShifts = prev[dateString]?.filter(s => s.id !== shiftId) || [];
       const newShifts = {...prev};
       if(dayShifts.length > 0) {
         newShifts[dateString] = dayShifts;
@@ -80,6 +86,7 @@ export default function CalendarView() {
       }
       return newShifts;
     });
+    closeDetailsModal();
   };
 
   const closeModal = () => {
@@ -129,9 +136,6 @@ export default function CalendarView() {
         {hasShifts && (
           <ShiftList 
             shifts={shifts}
-            dateString={dateString}
-            onEdit={handleEditShift}
-            onDelete={handleDeleteShift}
             onView={handleViewShift}
           />
         )}
@@ -176,6 +180,8 @@ export default function CalendarView() {
           isOpen={isDetailsModalOpen}
           onClose={closeDetailsModal}
           shift={viewingShift}
+          onEdit={handleEditShift}
+          onDelete={handleDeleteShift}
         />
       )}
     </>

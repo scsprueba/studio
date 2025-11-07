@@ -10,15 +10,31 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Building, Clock, Info, Phone, User } from 'lucide-react';
+import { Building, Clock, Info, Phone, User, Trash2, Pencil } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useState } from 'react';
+
 
 interface ShiftDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   shift: Shift;
+  onEdit: (shift: Shift) => void;
+  onDelete: (shiftId: string) => void;
 }
 
-export default function ShiftDetailsModal({ isOpen, onClose, shift }: ShiftDetailsModalProps) {
+export default function ShiftDetailsModal({ isOpen, onClose, shift, onEdit, onDelete }: ShiftDetailsModalProps) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -27,11 +43,10 @@ export default function ShiftDetailsModal({ isOpen, onClose, shift }: ShiftDetai
     day: 'numeric',
   });
   
-  const handleWhatsAppContact = () => {
-    const phoneNumber = shift.phone.replace(/[^0-9]/g, '');
-    const message = `Hola ${shift.name}, te escribo por la guardia del ${formattedDate}.`;
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
-  };
+  const handleDeleteConfirm = () => {
+    onDelete(shift.id);
+    setIsDeleteDialogOpen(false);
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -76,16 +91,37 @@ export default function ShiftDetailsModal({ isOpen, onClose, shift }: ShiftDetai
                 <Info className="w-5 h-5 text-primary mt-0.5" />
                 <div className="grid gap-0.5">
                   <p className="font-semibold">Notas:</p>
-                  <p className="text-foreground/90 bg-muted/50 p-2 rounded-md">{shift.notes}</p>
+                  <p className="text-foreground/90 bg-muted p-2 rounded-md">{shift.notes}</p>
                 </div>
               </div>
            )}
         </div>
-        <DialogFooter className="sm:justify-between gap-2">
+        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between gap-2">
             <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">Cerrar</Button>
-            <Button type="button" onClick={handleWhatsAppContact} className="w-full sm:w-auto whatsapp-btn">
-                Contactar por WhatsApp
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button type="button" variant="secondary" onClick={() => onEdit(shift)} className="flex-1">
+                  <Pencil className="w-4 h-4 mr-2" /> Editar
+              </Button>
+              <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="destructive" className="flex-1">
+                    <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción no se puede deshacer. La guardia se eliminará permanentemente.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteConfirm}>Continuar</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
