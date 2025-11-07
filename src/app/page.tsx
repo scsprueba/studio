@@ -15,7 +15,7 @@ export default function Home() {
             GuardiaSwap
           </h1>
           <p className="text-muted-foreground text-sm md:text-base mt-1">
-            Intercambio de guardias de enfermería. Toca un día para ver o publicar.
+            Intercambio de guardias. Toca un día para editar el texto.
           </p>
         </div>
       </header>
@@ -30,7 +30,7 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <CalendarView userId="shared-user" />
+          <CalendarView />
         )}
       </main>
     </div>

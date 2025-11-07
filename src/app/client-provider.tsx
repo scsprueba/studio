@@ -12,7 +12,6 @@ import {
   onSnapshot,
   collection,
   query,
-  orderBy,
   Firestore,
   getFirestore,
 } from 'firebase/firestore';
@@ -37,7 +36,7 @@ const firebaseConfig: FirebaseOptions = {
 interface FirebaseContextValue {
   db: Firestore;
   app: FirebaseApp;
-  shifts: Shift[];
+  shifts: Record<string, Shift>; // Changed to a Record for easier lookup
   loading: boolean;
 }
 
@@ -54,21 +53,22 @@ function initializeFirebaseApp(config: FirebaseOptions): FirebaseApp {
 export function FirebaseProvider({ children }: { children: ReactNode }) {
   const app = useMemo(() => initializeFirebaseApp(firebaseConfig), []);
   const db = useMemo(() => getFirestore(app), [app]);
-  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [shifts, setShifts] = useState<Record<string, Shift>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'shifts'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'shifts'));
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
-        const shiftsFromDb = querySnapshot.docs.map((doc) => {
+        const shiftsFromDb: Record<string, Shift> = {};
+        querySnapshot.forEach((doc) => {
           const data = doc.data();
-          return {
+          shiftsFromDb[doc.id] = {
             id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
-          } as Shift;
+            content: data.content,
+            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
+          };
         });
         setShifts(shiftsFromDb);
         setLoading(false);
