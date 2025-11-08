@@ -27,10 +27,6 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     const correctPassword = process.env.NEXT_PUBLIC_APP_PASSWORD;
 
     if (password === correctPassword) {
-      toast({
-        title: '¡Acceso concedido!',
-        description: 'Bienvenido/a a GuardiaSwap.',
-      });
       onLoginSuccess();
     } else {
       setError('La contraseña es incorrecta. Inténtalo de nuevo.');
