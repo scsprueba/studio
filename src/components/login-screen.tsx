@@ -48,14 +48,13 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="********"
+                  placeholder="Contraseña"
                   required
                   className="pr-10 text-center text-lg tracking-widest"
                 />
