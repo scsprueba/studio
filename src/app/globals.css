@@ -17,8 +17,8 @@ body {
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 48 96% 51%;
-    --primary-foreground: 35 93% 5%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -26,28 +26,28 @@ body {
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 48 96% 51%;
+    --accent-foreground: 35 93% 5%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 48 96% 51%;
+    --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
 
     /* Custom variables */
     --weekend-card: 240 5% 15%;
-    --shift-item-background: 48 96% 20%;
+    --shift-item-background: 48 96% 70%;
   }
 
   .light {
     --background: 0 0% 98%; /* Soft Off-white */
     --foreground: 222 84% 4.9%; /* Charcoal black text */
     
-    --card: 210 40% 96.1%; /* Soft pale blue */
+    --card: 0 0% 100%; /* Pure White */
     --card-foreground: 222 84% 4.9%; /* Charcoal black on cards */
 
     --popover: 0 0% 100%;
@@ -62,21 +62,21 @@ body {
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%; /* Gray text */
 
-    --accent: 172 63% 42%; /* Soft Teal/Green */
-    --accent-foreground: 210 40% 98%; /* Light text on accent */
+    --accent: 48 96% 51%; /* Yellow */
+    --accent-foreground: 35 93% 5%; /* Dark text on accent */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 91.4%; /* Light gray border */
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
 
     /* Custom variables */
-    --weekend-card: 210 40% 94%; /* Slightly darker blue for weekends */
-    --shift-item-background: 48 96% 85%;
+    --weekend-card: 220 30% 95%; /* Slightly blueish gray for weekends */
+    --shift-item-background: 48 96% 85%; /* Light Yellow */
   }
 }
 
@@ -92,7 +92,7 @@ body {
 
 @layer utilities {
   .day-cell {
-    @apply transition-transform duration-100 ease-in-out bg-card border border-primary/20;
+    @apply transition-transform duration-100 ease-in-out bg-card border;
     @apply md:min-h-[120px]; /* min height only for desktop grid */
   }
   .day-cell:hover {

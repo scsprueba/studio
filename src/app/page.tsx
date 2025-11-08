@@ -23,7 +23,7 @@ export default function Home() {
             GuardiaSwap
           </h1>
           <p className="text-lg text-foreground/80 mt-1">
-            Intercambio de guardias
+            Guardias Pendientes de Cambiar
           </p>
         </div>
       </header>
