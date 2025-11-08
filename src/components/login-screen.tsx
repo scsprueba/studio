@@ -54,7 +54,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Contraseña"
+                  placeholder="**********"
                   required
                   className="pr-10 text-center text-lg tracking-widest"
                 />
