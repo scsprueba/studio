@@ -1,6 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp, query, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
@@ -33,6 +35,28 @@ export default function CalendarView() {
   const [shifts, setShifts] = useState<Shift[]>([]);
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    const q = query(collection(db, 'shifts'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const shiftsData: Shift[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        shiftsData.push({
+          id: doc.id,
+          ...data,
+          date: data.date,
+          // Firestore Timestamps need to be converted to JS Date objects
+          createdAt: (data.createdAt as Timestamp).toDate(),
+        } as Shift);
+      });
+      setShifts(shiftsData);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
 
   const shiftsByDate = useMemo(() => {
     return shifts.reduce((acc: Record<string, Shift[]>, shift) => {
@@ -74,24 +98,28 @@ export default function CalendarView() {
   const handleSaveShift = async (shiftData: Omit<Shift, 'id' | 'createdAt'>, existingId?: string) => {
     try {
       if (existingId) {
-        setShifts(prev => prev.map(s => s.id === existingId ? { ...s, ...shiftData, id: existingId } : s));
+        // Update existing shift
+        const shiftDocRef = doc(db, 'shifts', existingId);
+        await updateDoc(shiftDocRef, shiftData);
       } else {
-        const newId = Date.now().toString();
-        const newShift: Shift = { ...shiftData, id: newId, createdAt: new Date() };
-        setShifts(prev => [...prev, newShift]);
+        // Create new shift
+        await addDoc(collection(db, 'shifts'), {
+          ...shiftData,
+          createdAt: new Date(), // Use server timestamp for consistency
+        });
       }
 
       toast({
         title: '¡Guardia guardada!',
-        description: 'La guardia se ha publicado correctamente.',
+        description: 'La guardia se ha publicado correctamente en la base de datos.',
       });
       closeModal();
     } catch (error) {
-      console.error("Error saving shift:", error);
+      console.error("Error saving shift to Firestore:", error);
       toast({
         variant: 'destructive',
         title: 'Error al guardar',
-        description: 'No se pudo guardar la guardia. Inténtalo de nuevo.',
+        description: 'No se pudo guardar la guardia. Revisa tu conexión e inténtalo de nuevo.',
       });
     }
   };
@@ -106,18 +134,19 @@ export default function CalendarView() {
     if (!shiftToDeleteId) return;
     
     try {
-      setShifts(prev => prev.filter(s => s.id !== shiftToDeleteId));
+      const shiftDocRef = doc(db, 'shifts', shiftToDeleteId);
+      await deleteDoc(shiftDocRef);
 
       toast({
         title: 'Guardia eliminada',
-        description: 'La guardia ha sido eliminada permanentemente.',
+        description: 'La guardia ha sido eliminada permanentemente de la base de datos.',
       });
     } catch (error) {
-       console.error("Error deleting shift:", error);
+       console.error("Error deleting shift from Firestore:", error);
       toast({
         variant: 'destructive',
         title: 'Error al eliminar',
-        description: 'No se pudo eliminar la guardia. Inténtalo de nuevo.',
+        description: 'No se pudo eliminar la guardia. Revisa tu conexión e inténtalo de nuevo.',
       });
     } finally {
       setIsDeleteDialogOpen(false);
