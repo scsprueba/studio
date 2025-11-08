@@ -45,9 +45,6 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         <form onSubmit={handleSubmit}>
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold">GuardiaSwap</CardTitle>
-            <CardDescription>
-              Introduce la clave para acceder al calendario de guardias.
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
