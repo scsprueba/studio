@@ -14,16 +14,16 @@ env:
   - variable: NEXT_PUBLIC_APP_PASSWORD
     value: enfermeria00
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: 'PEGAR_VALOR_AQUI'
+    value: 'AIzaSyCCozUn2lAcvVM6VUmSFlnkLnLdP1jJVnU'
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: 'PEGAR_VALOR_AQUI'
+    value: 'studio-6792195927-50f25.firebaseapp.com'
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: 'PEGAR_VALOR_AQUI'
+    value: 'studio-6792195927-50f25'
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: 'PEGAR_VALOR_AQUI'
+    value: 'studio-6792195927-50f25.firebasestorage.app'
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: 'PEGAR_VALOR_AQUI'
+    value: '835504863875'
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: 'PEGAR_VALOR_AQUI'
+    value: '1:835504863875:web:240adbdea3fa388b57b9b6'
   - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
     value: 'PEGAR_VALOR_AQUI'
