@@ -146,7 +146,8 @@ export default function CalendarView() {
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const dayShifts = shiftsByDate[dateString] || [];
     const hasShifts = dayShifts.length > 0;
-    const canAddShift = dayShifts.length < 2;
+    const maxShifts = isWeekend ? 4 : 2;
+    const canAddShift = dayShifts.length < maxShifts;
 
     return (
       <div
@@ -166,7 +167,7 @@ export default function CalendarView() {
             <span className="text-sm font-medium text-card-foreground/70 md:hidden">{weekDayNames[dayOfWeek]}</span>
           </div>
            <Button variant="ghost" size="icon" className="h-8 w-8 md:h-7 md:w-7 opacity-50 group-hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed" onClick={() => handleOpenModalForNew(dateString)} disabled={!canAddShift}>
-              <PlusCircle className="h-5 w-5 text-yellow-400"/>
+              <PlusCircle className="h-5 w-5 text-primary"/>
            </Button>
         </div>
         
