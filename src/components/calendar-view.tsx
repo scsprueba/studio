@@ -108,11 +108,7 @@ export default function CalendarView() {
           createdAt: new Date(), // Use server timestamp for consistency
         });
       }
-
-      toast({
-        title: '¡Guardia guardada!',
-        description: 'La guardia se ha publicado correctamente en la base de datos.',
-      });
+      
       closeModal();
     } catch (error) {
       console.error("Error saving shift to Firestore:", error);
