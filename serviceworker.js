@@ -17,5 +17,3 @@ self.addEventListener('fetch', (event) => {
   // It's just here to make the app installable.
   return;
 });
-
-    

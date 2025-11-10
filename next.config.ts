@@ -6,8 +6,7 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
-  customWorkerSrc: "src/serviceworker.js",
-  customWorkerDest: "public",
+  sw: "serviceworker.js",
 });
 
 const nextConfig: NextConfig = {
@@ -44,5 +43,3 @@ const nextConfig: NextConfig = {
 };
 
 export default pwaConfig(nextConfig);
-
-    
