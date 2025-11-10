@@ -12,6 +12,7 @@ import {
   AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -26,10 +27,14 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [showIosInstallMessage, setShowIosInstallMessage] = useState(false);
+  const [isIos, setIsIos] = useState(false);
   
   const { toast } = useToast();
 
   useEffect(() => {
+    // This code now runs only on the client
+    setIsIos(/iPhone|iPad|iPod/.test(navigator.userAgent));
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e);
@@ -63,8 +68,6 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   const handleInstallClick = () => {
-    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
-
     if (installPrompt) {
       installPrompt.prompt();
       installPrompt.userChoice.then((choiceResult: { outcome: string }) => {
@@ -83,7 +86,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     }
   };
   
-  const canInstall = installPrompt || /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const canInstall = installPrompt || isIos;
 
   return (
     <>
@@ -150,5 +153,3 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     </>
   );
 }
-
-    
