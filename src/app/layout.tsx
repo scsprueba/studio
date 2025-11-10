@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: 'GuardiaSwap',
   description:
     'Intercambio de Guardias de Enfermería - Publica y encuentra guardias para cambiar.',
-  manifest: '/manifest.json',
+  manifest: '/manifest.webmanifest',
 };
 
 export default function RootLayout({
@@ -24,6 +24,7 @@ export default function RootLayout({
     <html lang="es" className={`${inter.variable} light`}>
       <head>
         <meta name="theme-color" content="#ffffff" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className="font-body antialiased">
         {children}
