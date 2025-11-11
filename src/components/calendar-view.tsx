@@ -132,11 +132,6 @@ export default function CalendarView() {
     try {
       const shiftDocRef = doc(db, 'shifts', shiftToDeleteId);
       await deleteDoc(shiftDocRef);
-
-      toast({
-        title: 'Guardia eliminada',
-        description: 'La guardia ha sido eliminada permanentemente de la base de datos.',
-      });
     } catch (error) {
        console.error("Error deleting shift from Firestore:", error);
       toast({

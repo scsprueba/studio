@@ -2,7 +2,6 @@
 
 import type { Shift } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Edit } from 'lucide-react';
 
 interface ShiftListProps {
   shifts: Shift[];
@@ -31,7 +30,6 @@ const ShiftItem = ({ shift, onView }: { shift: Shift; onView: ShiftListProps['on
         <span>{summarizeLocation(shift.location)}</span>
       </div>
     </div>
-    <Edit className="h-4 w-4 text-foreground/70 ml-2 flex-shrink-0" />
   </button>
 );
 

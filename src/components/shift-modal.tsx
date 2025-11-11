@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import type { Shift } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit, User, Phone, MapPin, Clock, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Shift, 'id'>, existingId?: string) => void;
+  onSave: (data: Omit<Shift, 'id' | 'createdAt'>, existingId?: string) => void;
   onDelete: (shiftId: string) => void;
   shift: Shift | null;
   date: string | null;
@@ -35,12 +36,25 @@ interface ShiftModalProps {
 
 type FormData = Omit<Shift, 'id' | 'date'>;
 
+const InfoRow = ({ icon, label, children }: { icon: React.ReactNode, label: string, children: React.ReactNode }) => (
+  <div className="flex items-start gap-3">
+    <div className="text-primary/80 mt-1">{icon}</div>
+    <div className="flex-1">
+      <p className="text-sm font-semibold text-foreground/70">{label}</p>
+      <p className="text-base font-medium text-foreground">{children}</p>
+    </div>
+  </div>
+);
+
+
 export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, date }: ShiftModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<FormData>();
   
   useEffect(() => {
     if (shift) {
       reset(shift);
+      setIsEditing(false); // Default to view mode when a shift is opened
     } else {
       reset({
         name: '',
@@ -49,12 +63,13 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
         phone: '',
         notes: '',
       });
+      setIsEditing(true); // Default to edit mode for new shifts
     }
   }, [shift, reset, isOpen]);
 
   const onSubmit = (data: FormData) => {
     const finalDate = shift?.date || date;
-    if (!finalDate) return; // Should not happen
+    if (!finalDate) return; 
     onSave({ ...data, date: finalDate }, shift?.id);
   };
 
@@ -66,14 +81,57 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
     day: 'numeric',
   }) : '';
 
+  const handleClose = () => {
+    setIsEditing(false);
+    onClose();
+  }
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  }
+
+  if (!isEditing && shift) {
+    // VIEW MODE
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md bg-accent/80 border-accent shadow-lg rounded-xl">
+           <DialogHeader>
+            <DialogTitle className="text-accent-foreground font-bold">Guardia para el</DialogTitle>
+            <DialogDescription className="text-accent-foreground/80 font-semibold">{formattedDate}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4 px-2">
+            <InfoRow icon={<User size={18} />} label="Nombre">{shift.name}</InfoRow>
+            <InfoRow icon={<Phone size={18} />} label="Teléfono (WhatsApp)">{shift.phone}</InfoRow>
+            <InfoRow icon={<MapPin size={18} />} label="Lugar">{shift.location}</InfoRow>
+            <InfoRow icon={<Clock size={18} />} label="Horario">{shift.time}</InfoRow>
+            {shift.notes && <InfoRow icon={<FileText size={18} />} label="Notas">{shift.notes}</InfoRow>}
+          </div>
+
+          <DialogFooter className="sm:justify-between">
+            <Button type="button" variant="destructive" onClick={() => onDelete(shift.id)}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Eliminar
+            </Button>
+            <Button type="button" onClick={handleEditClick}>
+              <Edit className="w-4 h-4 mr-2" />
+              Editar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  // EDIT / CREATE MODE
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{shift ? 'Detalles de la Guardia' : 'Publicar Guardia'}</DialogTitle>
+            <DialogTitle>{shift ? 'Editar Guardia' : 'Publicar Guardia'}</DialogTitle>
             <DialogDescription>
-              {shift ? `Editando guardia para el ${formattedDate}.` : `Para el día ${formattedDate}. Rellena los detalles.`}
+              {shift ? `Editando guardia para el ${formattedDate}.` : `Publicando guardia para el ${formattedDate}.`}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -160,7 +218,7 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
                </Button>
             ) : <div className="mr-auto"></div>}
             <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+              <Button type="button" variant="outline" onClick={handleClose}>Cancelar</Button>
               <Button type="submit">Guardar</Button>
             </div>
           </DialogFooter>
