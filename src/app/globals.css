@@ -62,8 +62,8 @@ body {
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%; /* Gray text */
 
-    --accent: 48 96% 51%; /* Yellow */
-    --accent-foreground: 35 93% 5%; /* Dark text on accent */
+    --accent: 48 96% 90%; /* Lighter Yellow for modal */
+    --accent-foreground: 48 95% 20%; /* Darker text for modal */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -76,7 +76,7 @@ body {
 
     /* Custom variables */
     --weekend-card: 220 30% 95%; /* Slightly blueish gray for weekends */
-    --shift-item-background: 48 96% 85%; /* Light Yellow */
+    --shift-item-background: 48 96% 85%; /* Light Yellow for list items */
   }
 }
 

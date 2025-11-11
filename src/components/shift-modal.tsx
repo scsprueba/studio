@@ -40,8 +40,8 @@ const InfoRow = ({ icon, label, children }: { icon: React.ReactNode, label: stri
   <div className="flex items-start gap-3">
     <div className="text-primary/80 mt-1">{icon}</div>
     <div className="flex-1">
-      <p className="text-sm font-semibold text-foreground/70">{label}</p>
-      <p className="text-base font-medium text-foreground">{children}</p>
+      <p className="text-sm font-semibold text-accent-foreground/70">{label}</p>
+      <p className="text-base font-medium text-accent-foreground">{children}</p>
     </div>
   </div>
 );
@@ -94,9 +94,9 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
     // VIEW MODE
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md bg-accent/80 border-accent shadow-lg rounded-xl">
+        <DialogContent className="sm:max-w-md bg-accent border-accent-foreground/20 shadow-lg rounded-xl">
            <DialogHeader>
-            <DialogTitle className="text-accent-foreground font-bold">Guardia para el</DialogTitle>
+            <DialogTitle className="text-accent-foreground font-bold">Guardia pendiente de cambiar</DialogTitle>
             <DialogDescription className="text-accent-foreground/80 font-semibold">{formattedDate}</DialogDescription>
           </DialogHeader>
 
@@ -113,7 +113,7 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
               <Trash2 className="w-4 h-4 mr-2" />
               Eliminar
             </Button>
-            <Button type="button" onClick={handleEditClick}>
+            <Button type="button" onClick={handleEditClick} className="bg-primary/90 hover:bg-primary">
               <Edit className="w-4 h-4 mr-2" />
               Editar
             </Button>
@@ -131,7 +131,7 @@ export default function ShiftModal({ isOpen, onClose, onSave, onDelete, shift, d
           <DialogHeader>
             <DialogTitle>{shift ? 'Editar Guardia' : 'Publicar Guardia'}</DialogTitle>
             <DialogDescription>
-              {shift ? `Editando guardia para el ${formattedDate}.` : `Publicando guardia para el ${formattedDate}.`}
+              {formattedDate}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
